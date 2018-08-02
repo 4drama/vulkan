@@ -1,7 +1,6 @@
 #ifndef HANDLE_WRAPPER_HPP_
 #define HANDLE_WRAPPER_HPP_
 
-#include <vulkan\vulkan.h>
 
 namespace vk_utils{
 
@@ -49,12 +48,6 @@ H handle_wrapper<H>::get(){
 template<class H>
 handle_wrapper<H>::~handle_wrapper(){
 	
-}
-
-template<>
-handle_wrapper<VkInstance>::~handle_wrapper(){
-	if(m_handle != VK_NULL_HANDLE)
-		vkDestroyInstance(m_handle, m_allocator_ptr);
 }
 
 }

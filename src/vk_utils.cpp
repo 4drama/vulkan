@@ -18,9 +18,6 @@ instance_creator::instance_creator()
 	this->m_inst_info.pNext = nullptr;
 	this->m_inst_info.flags = 0;
 	this->m_inst_info.pApplicationInfo = &this->m_app_info;
-	
-//	this->m_inst_info.enabledLayerCount = 0;			//	TODO: take out
-//	this->m_inst_info.ppEnabledLayerNames = nullptr;	//	TODO: take out
 }
 
 instance_creator& instance_creator::add_extension(const std::string& extension){
@@ -176,7 +173,7 @@ namespace {
 			if(find_layers(support_layers, req)){
 				result.push_back(req.c_str());
 			} else {
-				throw std::runtime_error("required extensions not support");
+				throw std::runtime_error("required layer not support");
 			}				
 		}
 		

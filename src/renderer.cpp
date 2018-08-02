@@ -1,11 +1,12 @@
 #include "renderer.hpp"
-#include "vk_utils.cpp"
+#include "vk_utils.hpp"
 
 vk::renderer::renderer(){
-	this->m_instance = instance_creator()
+	this->m_instance = vk_utils::instance_creator()
 		.add_extension(VK_KHR_WIN32_SURFACE_EXTENSION_NAME)
 		.add_extension(VK_KHR_SURFACE_EXTENSION_NAME)
 		.add_extension(VK_KHR_DISPLAY_EXTENSION_NAME)
+		.add_layer("VK_LAYER_LUNARG_api_dump")
 		.create();
 }
 
