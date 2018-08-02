@@ -1,5 +1,5 @@
-#ifndef VK_UTILS_HPP_
-#define VK_UTILS_HPP_
+#ifndef INSTANCE_CREATOR_HPP_
+#define INSTANCE_CREATOR_HPP_
 
 #include <vulkan\vulkan.h>
 

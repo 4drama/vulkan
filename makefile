@@ -11,18 +11,21 @@ TESTS_DIR= ./tests/
 
 all: $(BIN_DIR)renderer.dll
 
-$(OBJ_DIR)renderer.o: $(SRC_DIR)vk_utils.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)renderer.hpp $(SRC_DIR)renderer.cpp
+$(OBJ_DIR)renderer.o: $(SRC_DIR)instance_creator.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)renderer.hpp $(SRC_DIR)renderer.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)renderer.cpp -o $(OBJ_DIR)renderer.o
 	
-$(OBJ_DIR)vk_utils.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)vk_utils.hpp $(SRC_DIR)vk_utils.cpp
-	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)vk_utils.cpp -o $(OBJ_DIR)vk_utils.o
+$(OBJ_DIR)instance_creator.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)instance_creator.hpp $(SRC_DIR)instance_creator.cpp
+	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)instance_creator.cpp -o $(OBJ_DIR)instance_creator.o
 
 $(OBJ_DIR)handle_wrapper.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)handle_wrapper.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)handle_wrapper.cpp -o $(OBJ_DIR)handle_wrapper.o
-	
-$(BIN_DIR)renderer.dll: $(OBJ_DIR)renderer.o $(OBJ_DIR)vk_utils.o $(OBJ_DIR)handle_wrapper.o
-	gcc $(VK_LIB) -shared $(OBJ_DIR)renderer.o $(OBJ_DIR)vk_utils.o -o  $(BIN_DIR)renderer.dll $(LDFLAG)
 
+$(OBJ_DIR)device.o: $(SRC_DIR)device.hpp $(SRC_DIR)device.cpp
+	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)device.cpp -o $(OBJ_DIR)device.o
+	
+$(BIN_DIR)renderer.dll: $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o
+	gcc $(VK_LIB) -shared $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o -o  $(BIN_DIR)renderer.dll $(LDFLAG)
+	
 run:
 	
 test1: $(BIN_DIR)renderer_test_1.exe

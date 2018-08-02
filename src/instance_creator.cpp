@@ -1,4 +1,4 @@
-#include "vk_utils.hpp"
+#include "instance_creator.hpp"
 
 #include <stdexcept>
 
@@ -41,17 +41,17 @@ instance_creator& instance_creator::set_engine_name(const std::string& engine_na
 }
 
 namespace {
-	[[nodiscard]] std::vector<VkExtensionProperties> get_extensions();
-	[[nodiscard]] bool find_extensions(const std::vector<VkExtensionProperties> &all_extensions,
+	[[nodiscard]] std::vector<VkExtensionProperties> f_get_extensions();
+	[[nodiscard]] bool f_find_extensions(const std::vector<VkExtensionProperties> &all_extensions,
 		const std::string& search_extension);
-	[[nodiscard]] std::vector<const char*> extensions_filter(
+	[[nodiscard]] std::vector<const char*> f_extensions_filter(
 		const std::vector<VkExtensionProperties> &support_extensions,
 		const std::vector<std::string> &required_extensions);
 		
-	[[nodiscard]] std::vector<VkLayerProperties> get_layers();
-	[[nodiscard]] bool find_layers(const std::vector<VkLayerProperties> &all_layers,
+	[[nodiscard]] std::vector<VkLayerProperties> f_get_layers();
+	[[nodiscard]] bool f_find_layers(const std::vector<VkLayerProperties> &all_layers,
 		const std::string& search_layer);
-	[[nodiscard]] std::vector<const char*> layers_filter(
+	[[nodiscard]] std::vector<const char*> f_layers_filter(
 		const std::vector<VkLayerProperties> &support_layers,
 		const std::vector<std::string> &required_layers);
 }
@@ -60,15 +60,15 @@ instance_wrapper instance_creator::create(){
 	this->m_app_info.pApplicationName = this->m_app_name.c_str();
 	this->m_app_info.pEngineName = this->m_engine_name.c_str();
 	
-	auto all_extensions = get_extensions();
-	std::vector<const char*> required_extensions = extensions_filter(all_extensions, 
+	auto all_extensions = f_get_extensions();
+	std::vector<const char*> required_extensions = f_extensions_filter(all_extensions, 
 		this->m_extensions);
 	
 	this->m_inst_info.enabledExtensionCount = required_extensions.size();
 	this->m_inst_info.ppEnabledExtensionNames = required_extensions.data();
 	
-	auto all_layers = get_layers();
-	std::vector<const char*> required_layers = layers_filter(all_layers, m_layers);
+	auto all_layers = f_get_layers();
+	std::vector<const char*> required_layers = f_layers_filter(all_layers, m_layers);
 	
 	m_inst_info.enabledLayerCount = required_layers.size();
 	m_inst_info.ppEnabledLayerNames = required_layers.data();
@@ -85,7 +85,7 @@ instance_wrapper instance_creator::create(){
 }
 
 namespace {
-	std::vector<VkExtensionProperties> get_extensions(){
+	std::vector<VkExtensionProperties> f_get_extensions(){
 		VkResult res = VK_SUCCESS;		
 		uint32_t extensions_count = 0;
 		
@@ -105,7 +105,7 @@ namespace {
 		return std::move(extensions);
 	}
 	
-	bool find_extensions(
+	bool f_find_extensions(
 		const std::vector<VkExtensionProperties> &all_extensions,
 		const std::string& search_extension){
 			
@@ -117,23 +117,24 @@ namespace {
 		return false;
 	}
 	
-	 std::vector<const char*> extensions_filter(
+	 std::vector<const char*> f_extensions_filter(
 		const std::vector<VkExtensionProperties> &support_extensions,
 		const std::vector<std::string> &required_extensions){
 		
 		std::vector<const char*> result;
 		for(auto &req : required_extensions){
-			if(find_extensions(support_extensions, req)){
+			if(f_find_extensions(support_extensions, req)){
 				result.push_back(req.c_str());
 			} else {
-				throw std::runtime_error("required extensions not support");
+				std::string msg = req + " extension not support";
+				throw std::runtime_error(msg);
 			}				
 		}
 		
 		return result;
 	}
 	
-	std::vector<VkLayerProperties> get_layers(){
+	std::vector<VkLayerProperties> f_get_layers(){
 		VkResult res = VK_SUCCESS;		
 		uint32_t layers_count = 0;
 		
@@ -153,7 +154,7 @@ namespace {
 		return std::move(layers);
 	}
 	
-	bool find_layers(const std::vector<VkLayerProperties> &all_layers,
+	bool f_find_layers(const std::vector<VkLayerProperties> &all_layers,
 		const std::string& search_layer){
 			
 		for(auto &curr : all_layers){
@@ -164,16 +165,17 @@ namespace {
 		return false;
 	}
 		
-	std::vector<const char*> layers_filter(
+	std::vector<const char*> f_layers_filter(
 		const std::vector<VkLayerProperties> &support_layers,
 		const std::vector<std::string> &required_layers){
 		
 		std::vector<const char*> result;
 		for(auto &req : required_layers){
-			if(find_layers(support_layers, req)){
+			if(f_find_layers(support_layers, req)){
 				result.push_back(req.c_str());
 			} else {
-				throw std::runtime_error("required layer not support");
+				std::string msg = req + " layer not support";
+				throw std::runtime_error(msg);
 			}				
 		}
 		
