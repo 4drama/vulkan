@@ -10,5 +10,5 @@ vk::renderer::renderer(){
 }
 
 vk::renderer::~renderer(){
-	vkDestroyInstance(this->m_instance, nullptr);
+	
 }

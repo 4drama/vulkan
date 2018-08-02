@@ -6,9 +6,13 @@
 #include <string>
 #include <vector>
 
+#include "handle_wrapper.hpp"
+
 namespace vk_utils{
 
 class instance_creator{
+	using instance_wrapper = vk_utils::instance_wrapper;
+	
 public:
 	instance_creator();
 	~instance_creator() = default;
@@ -17,7 +21,7 @@ public:
 	instance_creator& set_app_name(const std::string& app_name);
 	instance_creator& set_engine_name(const std::string& engine_name);
 	
-	VkInstance create();
+	[[nodiscard]] instance_wrapper create();
 	
 	instance_creator(instance_creator& ) = delete;
 	instance_creator& operator=(const instance_creator& ) = delete;

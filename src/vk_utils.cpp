@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 using instance_creator = vk_utils::instance_creator;
+using instance_wrapper = vk_utils::instance_wrapper;
 
 instance_creator::instance_creator() 
 	: m_app_name("Application name"), m_engine_name("Engine name"), m_allocator_ptr(nullptr){
@@ -46,7 +47,7 @@ namespace {
 		const std::vector<std::string> &required_extensions);
 }
 
-VkInstance instance_creator::create(){
+instance_wrapper instance_creator::create(){	
 	this->m_app_info.pApplicationName = this->m_app_name.c_str();
 	this->m_app_info.pEngineName = this->m_engine_name.c_str();
 	
@@ -66,7 +67,7 @@ VkInstance instance_creator::create(){
 		throw std::runtime_error("vkCreateInstance");
 	}
 	
-	return instance;
+	return instance_wrapper(instance, m_allocator_ptr);
 }
 
 namespace {
