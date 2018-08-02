@@ -16,6 +16,8 @@ public:
 	handle_wrapper();
 	explicit handle_wrapper(H handle, VkAllocationCallbacks* allocator);
 	
+	H get();
+	
 	handle_wrapper(handle_wrapper& ) = delete;
 	handle_wrapper& operator=(const handle_wrapper& ) = delete;
 	
@@ -37,6 +39,11 @@ template<class H>
 handle_wrapper<H>::handle_wrapper(H handle, VkAllocationCallbacks* allocator)
 	: m_handle(handle), m_allocator_ptr(allocator){
 	
+}
+
+template<class H>
+H handle_wrapper<H>::get(){
+	return m_handle;
 }
 
 template<class H>

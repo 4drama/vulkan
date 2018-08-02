@@ -18,6 +18,7 @@ public:
 	~instance_creator() = default;
 	
 	instance_creator& add_extension(const std::string& extension);
+	instance_creator& add_layer(const std::string& layer);
 	instance_creator& set_app_name(const std::string& app_name);
 	instance_creator& set_engine_name(const std::string& engine_name);
 	
@@ -32,6 +33,7 @@ private:
 	std::string m_engine_name;
 	
 	std::vector<std::string> m_extensions;
+	std::vector<std::string> m_layers;
 	
 	VkAllocationCallbacks* m_allocator_ptr;
 	
