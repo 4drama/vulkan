@@ -6,6 +6,9 @@
 
 #include <cassert>
 
+using device = vk_utils::device;
+using queue_family = vk_utils::queue_family;
+
 namespace {
 	
 [[nodiscard]] std::vector<VkPhysicalDevice> f_get_physical_device(VkInstance instance);
@@ -15,10 +18,43 @@ namespace {
 	f_get_physical_device_properties(VkPhysicalDevice physical_device) noexcept;
 	
 [[nodiscard]] VkPhysicalDevice 
-	f_choose_better_physical_device(const std::vector<VkPhysicalDevice> devices);
+	f_choose_better_physical_device(const std::vector<VkPhysicalDevice> &devices);
 }
 
+queue_family::queue_family(VkPhysicalDevice physical_device, uint32_t family_index)
+	:m_family_index(family_index){
+	
+	uint32_t family_count = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &family_count, NULL);
+	
+	std::vector<VkQueueFamilyProperties> properties(family_count);
+	properties.resize(family_count);
+	
+	vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &family_count, properties.data());
+	
+	m_family_properties = properties[m_family_index];
+}
 
+device::device() : m_physical_device(VK_NULL_HANDLE){
+	
+}
+
+device::device(VkInstance instance){
+	auto devices = f_get_physical_device(instance);
+	m_physical_device = f_choose_better_physical_device(devices);
+	
+	uint32_t family_count = 0;
+	vkGetPhysicalDeviceQueueFamilyProperties(m_physical_device, &family_count, NULL);
+	
+	m_queue_families.clear();
+	for(uint32_t index = 0; index < family_count; index++){
+		m_queue_families.push_back(queue_family(m_physical_device, index));
+	}
+}
+
+device::~device(){
+	
+}
 
 namespace {
 	
@@ -75,7 +111,7 @@ VkPhysicalDeviceProperties
 }
 	
 [[nodiscard]] VkPhysicalDevice 
-	f_choose_better_physical_device(const std::vector<VkPhysicalDevice> devices){
+	f_choose_better_physical_device(const std::vector<VkPhysicalDevice> &devices){
 	
 	VkPhysicalDevice better_device = VK_NULL_HANDLE;
 	

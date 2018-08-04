@@ -5,11 +5,13 @@
 #include <vulkan\vulkan.h>
 
 #include "handle_wrapper.hpp"
+#include "device.hpp"
 
 namespace vk{
 
 class renderer{
 	using instance_wrapper = vk_utils::instance_wrapper;
+	using device = vk_utils::device;
 public:
 	renderer();
 	~renderer();
@@ -20,6 +22,7 @@ public:
 	renderer(renderer&&) = default;
 private:
 	instance_wrapper m_instance;
+	device m_device;
 };
 
 }
