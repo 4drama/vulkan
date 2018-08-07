@@ -2,7 +2,7 @@ VK_INCLUDE= -IC:\libraries\VulkanSDK\1.1.73.0\Include
 VK_LIB= -LC:\libraries\VulkanSDK\1.1.73.0\Lib
 
 LDFLAG= -lstdc++ -lvulkan-1
-CFLAGS= -c -Wall -std=c++17
+CFLAGS= -c -Wall -std=c++17 -g
 
 SRC_DIR= ./src/
 OBJ_DIR= ./obj/
@@ -11,7 +11,7 @@ TESTS_DIR= ./tests/
 
 all: $(BIN_DIR)renderer.dll
 
-$(OBJ_DIR)renderer.o: $(SRC_DIR)instance_creator.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)renderer.hpp $(SRC_DIR)renderer.cpp
+$(OBJ_DIR)renderer.o: $(SRC_DIR)device.hpp $(SRC_DIR)instance_creator.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)renderer.hpp $(SRC_DIR)renderer.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)renderer.cpp -o $(OBJ_DIR)renderer.o
 
 $(OBJ_DIR)instance_creator.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)instance_creator.hpp $(SRC_DIR)instance_creator.cpp
@@ -20,7 +20,7 @@ $(OBJ_DIR)instance_creator.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)instance_cr
 $(OBJ_DIR)handle_wrapper.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)handle_wrapper.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)handle_wrapper.cpp -o $(OBJ_DIR)handle_wrapper.o
 
-$(OBJ_DIR)device.o: $(SRC_DIR)device.hpp $(SRC_DIR)device.cpp
+$(OBJ_DIR)device.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)device.hpp $(SRC_DIR)device.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)device.cpp -o $(OBJ_DIR)device.o
 
 $(BIN_DIR)renderer.dll: $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o

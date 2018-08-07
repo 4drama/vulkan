@@ -9,7 +9,9 @@
 using device = vk_utils::device;
 using queue_family = vk_utils::queue_family;
 using device_creator = vk_utils::device_creator;
+using device_memory = vk_utils::device_memory;
 
+//=====================queue_family implementation===================
 queue_family::queue_family(VkPhysicalDevice physical_device, uint32_t family_index)
 	:m_family_index(family_index){
 
@@ -32,7 +34,9 @@ uint32_t queue_family::queue_create(){
 	VkQueue new_queue;
 	// TO DO
 }
+//-------------------------------------------------------------------
 
+//========================device implementation======================
 device::device() : m_physical_device(VK_NULL_HANDLE){
 
 }
@@ -54,21 +58,32 @@ device::device(VkPhysicalDevice physical_device, VkDevice logical_device,
 device::~device(){
 
 }
+//-------------------------------------------------------------------
 
 namespace {
+[[nodiscard]] std::vector<VkPhysicalDevice>
+	f_get_physical_device(VkInstance instance);
 
-[[nodiscard]] std::vector<VkPhysicalDevice> f_get_physical_device(VkInstance instance);
 [[nodiscard]] std::vector<VkQueueFamilyProperties>
 	f_get_physical_device_queue_family_properties(VkPhysicalDevice physical_device);
+
 [[nodiscard]] VkPhysicalDeviceProperties
 	f_get_physical_device_properties(VkPhysicalDevice physical_device) noexcept;
+
 [[nodiscard]] std::vector<VkDeviceQueueCreateInfo>
 	f_create_queue_create_info(VkPhysicalDevice physical_device);
 
 [[nodiscard]] VkPhysicalDevice
 	f_choose_better_physical_device(const std::vector<VkPhysicalDevice> &devices);
+
+[[nodiscard]] std::vector<VkLayerProperties>
+	f_get_layer_properties(VkPhysicalDevice physical_device);
+
+[[nodiscard]] std::vector<VkExtensionProperties>
+	f_get_extension_properties(VkPhysicalDevice physical_device);
 }
 
+//====================device_creator implementation==================
 device_creator::device_creator(VkInstance instance)
 	: m_allocator_ptr(nullptr), m_physical_device(VK_NULL_HANDLE){
 
@@ -84,14 +99,6 @@ device_creator::device_creator(VkInstance instance)
 	m_device_info.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
 	m_device_info.pNext = NULL;
 	m_device_info.flags = 0;
-}
-
-namespace {
-	[[nodiscard]] std::vector<VkLayerProperties> f_get_layer_properties
-		(VkPhysicalDevice physical_device);
-
-	[[nodiscard]] std::vector<VkExtensionProperties> f_get_extension_properties
-		(VkPhysicalDevice physical_device);
 }
 
 device_creator& device_creator::add_extension(const std::string& extension){
@@ -120,64 +127,6 @@ device_creator& device_creator::add_layer(const std::string& layer){
 
 	std::string msg = "layer " + layer + " not supported";
 	throw std::runtime_error(msg);
-}
-
-namespace {
-	[[nodiscard]] std::vector<VkLayerProperties> f_get_layer_properties
-		(VkPhysicalDevice physical_device){
-
-		uint32_t property_count = 0;
-		VkResult res = VK_SUCCESS;
-
-		res = vkEnumerateDeviceLayerProperties(physical_device, &property_count, nullptr);
-
-		std::vector<VkLayerProperties> layers_property(property_count);
-		layers_property.resize(property_count);
-
-		if(res != VK_SUCCESS){
-			std::string msg = "vkEnumerateDeviceLayerProperties get counter";
-			throw std::runtime_error(msg);
-		}
-
-		res = vkEnumerateDeviceLayerProperties(
-			physical_device, &property_count, layers_property.data());
-
-		if(res != VK_SUCCESS){
-			std::string msg = "vkEnumerateDeviceLayerProperties get propertis";
-			throw std::runtime_error(msg);
-		}
-
-		return layers_property;
-	}
-
-	[[nodiscard]] std::vector<VkExtensionProperties> f_get_extension_properties
-		(VkPhysicalDevice physical_device){
-
-		uint32_t property_count = 0;
-		VkResult res = VK_SUCCESS;
-
-		res = vkEnumerateDeviceExtensionProperties(
-			physical_device, nullptr, &property_count, nullptr);
-
-		std::vector<VkExtensionProperties> extension_property(property_count);
-		extension_property.resize(property_count);
-
-		if(res != VK_SUCCESS){
-			std::string msg = "vkEnumerateDeviceExtensionProperties get counter";
-			throw std::runtime_error(msg);
-		}
-
-		res = vkEnumerateDeviceExtensionProperties(
-			physical_device, nullptr, &property_count, extension_property.data());
-
-		if(res != VK_SUCCESS){
-			std::string msg = "vkEnumerateDeviceExtensionProperties get propertis";
-			throw std::runtime_error(msg);
-		}
-
-		return extension_property;
-	}
-
 }
 
 device_creator& device_creator::add_feature(const std::string& feature){
@@ -229,6 +178,7 @@ device device_creator::create(){
 
 	return device(m_physical_device, logic_device, m_allocator_ptr);
 }
+//-------------------------------------------------------------------
 
 namespace {
 
@@ -333,4 +283,181 @@ VkPhysicalDeviceProperties
 	return result;
 }
 
+[[nodiscard]] std::vector<VkLayerProperties>
+	f_get_layer_properties(VkPhysicalDevice physical_device){
+
+	uint32_t property_count = 0;
+	VkResult res = VK_SUCCESS;
+
+	res = vkEnumerateDeviceLayerProperties(physical_device, &property_count, nullptr);
+
+	std::vector<VkLayerProperties> layers_property(property_count);
+	layers_property.resize(property_count);
+
+	if(res != VK_SUCCESS){
+		std::string msg = "vkEnumerateDeviceLayerProperties get counter";
+		throw std::runtime_error(msg);
+	}
+
+	res = vkEnumerateDeviceLayerProperties(
+		physical_device, &property_count, layers_property.data());
+
+	if(res != VK_SUCCESS){
+		std::string msg = "vkEnumerateDeviceLayerProperties get propertis";
+		throw std::runtime_error(msg);
+	}
+
+	return layers_property;
 }
+
+[[nodiscard]] std::vector<VkExtensionProperties>
+	f_get_extension_properties(VkPhysicalDevice physical_device){
+
+	uint32_t property_count = 0;
+	VkResult res = VK_SUCCESS;
+
+	res = vkEnumerateDeviceExtensionProperties(
+		physical_device, nullptr, &property_count, nullptr);
+
+	std::vector<VkExtensionProperties> extension_property(property_count);
+	extension_property.resize(property_count);
+
+	if(res != VK_SUCCESS){
+		std::string msg = "vkEnumerateDeviceExtensionProperties get counter";
+		throw std::runtime_error(msg);
+	}
+
+	res = vkEnumerateDeviceExtensionProperties(
+		physical_device, nullptr, &property_count, extension_property.data());
+
+	if(res != VK_SUCCESS){
+		std::string msg = "vkEnumerateDeviceExtensionProperties get propertis";
+		throw std::runtime_error(msg);
+	}
+
+	return extension_property;
+}
+
+}
+
+//================device_memory::memory_type declaration=============
+class device_memory::memory_type{
+public:
+	memory_type() = delete;
+	explicit memory_type(VkMemoryPropertyFlags flags, uint32_t heap_index) noexcept;
+
+	bool check_type_flags(VkMemoryPropertyFlags flags) const noexcept;
+	uint32_t get_index() const noexcept;
+	double get_priority() const noexcept;
+
+private:
+	VkMemoryPropertyFlags m_flags;
+	uint32_t m_heap_index;
+	double m_priority;
+};
+//-------------------------------------------------------------------
+
+//================device_memory::memory_heap declaration=============
+class device_memory::memory_heap{
+public:
+	memory_heap() = delete;
+	explicit memory_heap(VkDeviceSize size, VkMemoryHeapFlags flags) noexcept;
+
+	[[nodiscard]] bool check_heap_flags(VkMemoryHeapFlags flags) const noexcept;
+
+	[[nodiscard]] VkDeviceSize get_max_mem() const noexcept;
+	[[nodiscard]] VkDeviceSize get_busy_mem() const noexcept;
+	[[nodiscard]] VkDeviceSize get_remaining_mem() const noexcept;
+
+	void calc_allocate(VkDeviceSize size) noexcept;
+	void calc_free(VkDeviceSize size) noexcept;
+private:
+	VkDeviceSize m_max_size;
+	VkDeviceSize m_curr_size;
+	VkMemoryHeapFlags m_flags;
+};
+//-------------------------------------------------------------------
+
+//=====================device_memory implementation==================
+device_memory::device_memory(VkPhysicalDevice physical_device, VkDevice device,
+	VkAllocationCallbacks* allocator_ptr)
+	: m_device(device), m_allocator_ptr(allocator_ptr){
+
+	VkPhysicalDeviceMemoryProperties device_memory_property = {};
+	vkGetPhysicalDeviceMemoryProperties(physical_device, &device_memory_property);
+
+	m_types.reserve(device_memory_property.memoryTypeCount);
+	m_heaps.reserve(device_memory_property.memoryHeapCount);
+
+	for(uint32_t i = 0; i < device_memory_property.memoryTypeCount; i++){
+		const VkMemoryType *type = &device_memory_property.memoryTypes[i];
+		m_types.push_back(memory_type(type->propertyFlags, type->heapIndex));
+	}
+
+	for(uint32_t i = 0; i < device_memory_property.memoryHeapCount; i++){
+		const VkMemoryHeap *heap = &device_memory_property.memoryHeaps[i];
+		m_heaps.push_back(memory_heap(heap->size, heap->flags));
+	}
+}
+//-------------------------------------------------------------------
+
+//==============device_memory::memory_heap implementation============
+device_memory::memory_heap::memory_heap(
+	VkDeviceSize size,	VkMemoryHeapFlags flags) noexcept
+	: m_max_size(size), m_curr_size(0), m_flags(flags){
+}
+
+bool device_memory::memory_heap::check_heap_flags(VkMemoryHeapFlags flags) const noexcept{
+	return (m_flags & flags) == flags;
+}
+
+VkDeviceSize device_memory::memory_heap::get_max_mem() const noexcept{
+	return m_max_size;
+}
+
+VkDeviceSize device_memory::memory_heap::get_busy_mem() const noexcept{
+	return m_curr_size;
+}
+
+VkDeviceSize device_memory::memory_heap::get_remaining_mem() const noexcept{
+	return this->get_max_mem() - this->get_busy_mem();
+}
+
+void device_memory::memory_heap::calc_allocate(VkDeviceSize size) noexcept{
+	m_curr_size += size;
+	assert(m_curr_size <= m_max_size);
+}
+
+void device_memory::memory_heap::calc_free(VkDeviceSize size) noexcept{
+	m_curr_size -= size;
+	assert(m_curr_size >= 0);
+}
+//-------------------------------------------------------------------
+
+//==============device_memory::memory_type implementation============
+device_memory::memory_type::memory_type(
+	VkMemoryPropertyFlags flags, uint32_t heap_index) noexcept
+	: m_flags(flags), m_heap_index(heap_index){
+
+	uint32_t flags_counter = 0;
+	for(uint32_t offset = 0; offset < sizeof(VkMemoryPropertyFlags) * 8; offset++){
+		if(flags & (1 << offset))
+			flags_counter++;
+	}
+
+	m_priority = 1 / flags_counter;
+}
+
+bool device_memory::memory_type::check_type_flags(
+	VkMemoryPropertyFlags flags) const noexcept{
+	return (m_flags & flags) == flags;
+}
+
+uint32_t device_memory::memory_type::get_index() const noexcept{
+	return m_heap_index;
+}
+
+double device_memory::memory_type::get_priority() const noexcept{
+	return m_priority;
+}
+//-------------------------------------------------------------------

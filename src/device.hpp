@@ -10,6 +10,11 @@
 
 namespace vk_utils{
 
+class queue_family;
+class device;
+class device_creator;
+class device_memory;
+
 class queue_family{
 public:
 	explicit queue_family(VkPhysicalDevice physical_device, uint32_t family_index);
@@ -71,6 +76,26 @@ private:
 	VkPhysicalDeviceFeatures m_required_features;
 
 	VkPhysicalDevice m_physical_device;
+};
+
+class device_memory{
+public:
+	device_memory() = delete;
+	explicit device_memory(VkPhysicalDevice physical_device, VkDevice device,
+		VkAllocationCallbacks* allocator_ptr);
+
+	device_memory(device_memory& ) = delete;
+	device_memory& operator=(const device_memory& ) = delete;
+
+private:
+	class memory_type;
+	class memory_heap;
+
+	std::vector<memory_type> m_types;
+	std::vector<memory_heap> m_heaps;
+
+	VkDevice m_device;
+	VkAllocationCallbacks* m_allocator_ptr;
 };
 
 }
