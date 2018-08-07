@@ -4,6 +4,7 @@
 #include <vulkan\vulkan.h>
 
 #include <vector>
+#include <map>
 #include <string>
 
 #include "handle_wrapper.hpp"
@@ -84,6 +85,10 @@ public:
 	explicit device_memory(VkPhysicalDevice physical_device, VkDevice device,
 		VkAllocationCallbacks* allocator_ptr);
 
+	VkDeviceMemory allocate_memory(VkMemoryRequirements req,
+		VkMemoryPropertyFlags flags);
+	void free_memory(VkDeviceMemory memory);
+
 	device_memory(device_memory& ) = delete;
 	device_memory& operator=(const device_memory& ) = delete;
 
@@ -93,6 +98,8 @@ private:
 
 	std::vector<memory_type> m_types;
 	std::vector<memory_heap> m_heaps;
+
+	std::map<VkDeviceMemory, uint32_t> m_device_handlers;
 
 	VkDevice m_device;
 	VkAllocationCallbacks* m_allocator_ptr;

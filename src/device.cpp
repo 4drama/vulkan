@@ -399,6 +399,64 @@ device_memory::device_memory(VkPhysicalDevice physical_device, VkDevice device,
 		m_heaps.push_back(memory_heap(heap->size, heap->flags));
 	}
 }
+
+VkDeviceMemory device_memory::allocate_memory(VkMemoryRequirements req,
+	VkMemoryPropertyFlags flags){
+
+	struct{
+		uint32_t index;
+		double priority;
+	} heap = {0, 0};
+
+	for (uint32_t memoryType = 0; memoryType < 32; ++memoryType){
+		if (req.memoryTypeBits & (1 << memoryType)){
+
+			if(m_types[memoryType].check_type_flags(flags)){
+				double curr_priority = m_types[memoryType].get_priority();
+				if((curr_priority > heap.priority) &&
+					(m_heaps[memoryType].get_remaining_mem() >= req.size)){
+
+					heap.index = memoryType;
+					heap.priority = curr_priority;
+				}
+			}
+		}
+	}
+
+	VkMemoryAllocateInfo allocate_info = {
+		VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
+		NULL,
+		req.size,
+		heap.index
+	};
+
+	VkResult res = VK_SUCCESS;
+	VkDeviceMemory memory = VK_NULL_HANDLE;
+
+	res = vkAllocateMemory(m_device, &allocate_info, m_allocator_ptr, &memory);
+	if(res != VK_SUCCESS){
+		std::string msg = "vkAllocateMemory";
+		throw std::runtime_error(msg);
+	}
+
+	m_device_handlers[memory] = heap.index;
+
+	m_heaps[heap.index].calc_allocate(req.size);
+	return memory;
+}
+
+void device_memory::free_memory(VkDeviceMemory memory){
+	assert(memory != VK_NULL_HANDLE);
+
+	VkDeviceSize size = 0;
+	vkGetDeviceMemoryCommitment(m_device, memory, &size);
+
+	vkFreeMemory(m_device, memory, m_allocator_ptr);
+
+	uint32_t index = m_device_handlers[memory];
+	m_heaps[index].calc_free(size);
+	m_device_handlers.erase(memory);
+}
 //-------------------------------------------------------------------
 
 //==============device_memory::memory_heap implementation============
