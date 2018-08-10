@@ -6,6 +6,7 @@
 
 #include "handle_wrapper.hpp"
 #include "device.hpp"
+#include "win32_window.hpp"
 
 namespace vk{
 
@@ -15,14 +16,15 @@ class renderer{
 public:
 	renderer();
 	~renderer();
-	
+
 	renderer(renderer& ) = delete;
 	renderer& operator=(const renderer& ) = delete;
-	
+
 	renderer(renderer&&) = default;
 private:
 	instance_wrapper m_instance;
 	device m_device;
+	HWND m_window;
 };
 
 }

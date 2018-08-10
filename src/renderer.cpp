@@ -1,5 +1,8 @@
 #include "renderer.hpp"
 #include "instance_creator.hpp"
+namespace{
+LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
+}
 
 vk::renderer::renderer(){
 	this->m_instance = vk_utils::instance_creator()
@@ -16,8 +19,27 @@ vk::renderer::renderer(){
 //		.add_extension(VK_KHR_DISPLAY_SWAPCHAIN_EXTENSION_NAME)
 		.create();
 
+	m_window = vk_utils::win32_window_creator(WndProc)
+		.set_resolution(640, 480)
+		.create();
+
 }
 
 vk::renderer::~renderer(){
 
+}
+
+namespace{
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
+	switch(message){
+	case WM_DESTROY:
+		PostQuitMessage(0);
+		break;
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+		break;
+	}
+
+	return 0;
+}
 }
