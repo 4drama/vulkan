@@ -1,23 +1,31 @@
 #ifndef HANDLE_WRAPPER_HPP_
 #define HANDLE_WRAPPER_HPP_
 
-//#include <iostream>
+#include <vulkan\vulkan.h>
+
+#if defined(_WIN32)
+#include "windows.h"
+#endif
 
 namespace vk_utils{
 
-template<class H>
+template<class handle_type, class allocator_callback_type>
 class handle_wrapper;
 
-using instance_wrapper = handle_wrapper<VkInstance>;
-using device_wrapper = handle_wrapper<VkDevice>;
+using instance_wrapper = handle_wrapper<VkInstance, VkAllocationCallbacks>;
+using device_wrapper = handle_wrapper<VkDevice, VkAllocationCallbacks>;
 
-template<class H>
+#if defined(_WIN32)
+using win32_window_wrapper =  handle_wrapper<HWND, void>;
+#endif
+
+template<class handle_type, class allocator_callback_type>
 class handle_wrapper{
 public:
 	handle_wrapper();
-	explicit handle_wrapper(H handle, VkAllocationCallbacks* allocator);
+	explicit handle_wrapper(handle_type handle, allocator_callback_type* allocator = nullptr);
 
-	H get() const;
+	handle_type get() const;
 
 	handle_wrapper(handle_wrapper& ) = delete;
 	handle_wrapper& operator=(const handle_wrapper& ) = delete;
@@ -27,29 +35,34 @@ public:
 
 	~handle_wrapper();
 private:
-	H m_handle;
-	VkAllocationCallbacks* m_allocator_ptr;
+	handle_type m_handle;
+	allocator_callback_type* m_allocator_ptr;
 };
 
-template<class H>
-handle_wrapper<H>::handle_wrapper()
+#if defined(_WIN32)
+template<>
+handle_wrapper<HWND, void>::handle_wrapper();
+#endif
+
+template<class H, class A>
+handle_wrapper<H, A>::handle_wrapper()
 	: m_handle(VK_NULL_HANDLE), m_allocator_ptr(nullptr){
 
 }
 
-template<class H>
-handle_wrapper<H>::handle_wrapper(H handle, VkAllocationCallbacks* allocator)
+template<class H, class A>
+handle_wrapper<H, A>::handle_wrapper(H handle, A* allocator)
 	: m_handle(handle), m_allocator_ptr(allocator){
 
 }
 
-template<class H>
-H handle_wrapper<H>::get() const{
+template<class H, class A>
+H handle_wrapper<H, A>::get() const{
 	return m_handle;
 }
 
-template<class H>
-handle_wrapper<H>& handle_wrapper<H>::operator=(handle_wrapper<H>&& other){
+template<class H, class A>
+handle_wrapper<H, A>& handle_wrapper<H, A>::operator=(handle_wrapper<H, A>&& other){
     if (this != &other) {
 		this->m_handle = other.m_handle;
 		other.m_handle = VK_NULL_HANDLE;
@@ -60,13 +73,18 @@ handle_wrapper<H>& handle_wrapper<H>::operator=(handle_wrapper<H>&& other){
 }
 
 template<>
-handle_wrapper<VkInstance>::~handle_wrapper();
+handle_wrapper<VkInstance, VkAllocationCallbacks>::~handle_wrapper();
 
 template<>
-handle_wrapper<VkDevice>::~handle_wrapper();
+handle_wrapper<VkDevice, VkAllocationCallbacks>::~handle_wrapper();
 
-template<class H>
-handle_wrapper<H>::~handle_wrapper(){
+#if defined(_WIN32)
+template<>
+handle_wrapper<HWND, void>::~handle_wrapper();
+#endif
+
+template<class H, class A>
+handle_wrapper<H, A>::~handle_wrapper(){
 
 }
 

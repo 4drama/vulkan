@@ -62,7 +62,7 @@ win32_window_creator& win32_window_creator::set_cursor(HCURSOR cursor){
 	return *this;
 }
 
-HWND win32_window_creator::create(){
+vk_utils::win32_window_wrapper win32_window_creator::create(){
 	if(!RegisterClassEx(&m_window_class_example)){
 		std::string msg = "RegisterClassEx failed";
 		throw std::runtime_error(msg);
@@ -85,5 +85,5 @@ HWND win32_window_creator::create(){
 		std::string msg = "CreateWindow failed";
 		throw std::runtime_error(msg);
 	}
-	return window;
+	return vk_utils::win32_window_wrapper(window);
 }

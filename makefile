@@ -23,8 +23,8 @@ $(OBJ_DIR)handle_wrapper.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)handle_wrappe
 $(OBJ_DIR)device.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)device.hpp $(SRC_DIR)device.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)device.cpp -o $(OBJ_DIR)device.o
 
-$(OBJ_DIR)win32_window.o: $(SRC_DIR)win32_window.hpp $(SRC_DIR)win32_window.cpp
-	gcc $(CFLAGS) $(SRC_DIR)win32_window.cpp -o $(OBJ_DIR)win32_window.o
+$(OBJ_DIR)win32_window.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)win32_window.hpp $(SRC_DIR)win32_window.cpp
+	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)win32_window.cpp -o $(OBJ_DIR)win32_window.o
 
 $(BIN_DIR)renderer.dll: $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(OBJ_DIR)win32_window.o
 	gcc $(VK_LIB) -shared $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(OBJ_DIR)win32_window.o -o  $(BIN_DIR)renderer.dll $(LDFLAG)

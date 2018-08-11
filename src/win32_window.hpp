@@ -2,8 +2,9 @@
 #define WIN32_WINDOW_HPP_
 
 #include <string>
-
 #include "windows.h"
+
+#include "handle_wrapper.hpp"
 
 namespace vk_utils{
 
@@ -20,7 +21,7 @@ public:
 	win32_window_creator& set_icon(HICON icon);
 	win32_window_creator& set_cursor(HCURSOR cursor);
 
-	[[nodiscard]] HWND create();
+	[[nodiscard]] win32_window_wrapper create();
 
 	win32_window_creator(win32_window_creator& ) = delete;
 	win32_window_creator& operator=(const win32_window_creator& ) = delete;
