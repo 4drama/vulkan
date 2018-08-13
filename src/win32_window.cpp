@@ -4,6 +4,19 @@
 
 using win32_window_creator = vk_utils::win32_window_creator;
 
+template<>
+vk_utils::handle_wrapper<HWND, void>::handle_wrapper()
+	: m_handle(NULL), m_allocator_ptr(nullptr){
+
+}
+
+template<>
+vk_utils::handle_wrapper<HWND, void>::~handle_wrapper(){
+	if(m_handle != NULL){
+		DestroyWindow(m_handle);
+	}
+}
+
 win32_window_creator::win32_window_creator(WNDPROC process_func)
 	: m_window_name("win32_window"),
 	m_width(800), m_height(600){

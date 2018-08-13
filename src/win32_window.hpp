@@ -1,12 +1,20 @@
 #ifndef WIN32_WINDOW_HPP_
 #define WIN32_WINDOW_HPP_
 
-#include <string>
 #include "windows.h"
 
+#include <string>
 #include "handle_wrapper.hpp"
 
 namespace vk_utils{
+
+using win32_window_wrapper = handle_wrapper<HWND, void>;
+
+template<>
+handle_wrapper<HWND, void>::handle_wrapper();
+
+template<>
+handle_wrapper<HWND, void>::~handle_wrapper();
 
 class win32_window_creator{
 public:

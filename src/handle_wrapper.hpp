@@ -3,10 +3,6 @@
 
 #include <vulkan\vulkan.h>
 
-#if defined(_WIN32)
-#include "windows.h"
-#endif
-
 namespace vk_utils{
 
 template<class handle_type, class allocator_callback_type>
@@ -14,10 +10,6 @@ class handle_wrapper;
 
 using instance_wrapper = handle_wrapper<VkInstance, VkAllocationCallbacks>;
 using device_wrapper = handle_wrapper<VkDevice, VkAllocationCallbacks>;
-
-#if defined(_WIN32)
-using win32_window_wrapper =  handle_wrapper<HWND, void>;
-#endif
 
 template<class handle_type, class allocator_callback_type>
 class handle_wrapper{
@@ -38,11 +30,6 @@ private:
 	handle_type m_handle;
 	allocator_callback_type* m_allocator_ptr;
 };
-
-#if defined(_WIN32)
-template<>
-handle_wrapper<HWND, void>::handle_wrapper();
-#endif
 
 template<class H, class A>
 handle_wrapper<H, A>::handle_wrapper()
@@ -77,11 +64,6 @@ handle_wrapper<VkInstance, VkAllocationCallbacks>::~handle_wrapper();
 
 template<>
 handle_wrapper<VkDevice, VkAllocationCallbacks>::~handle_wrapper();
-
-#if defined(_WIN32)
-template<>
-handle_wrapper<HWND, void>::~handle_wrapper();
-#endif
 
 template<class H, class A>
 handle_wrapper<H, A>::~handle_wrapper(){
