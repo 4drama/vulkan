@@ -20,10 +20,12 @@ OBJ_DIR= ./obj/
 BIN_DIR= ./bin/
 TESTS_DIR= ./tests/
 
+all: $(BIN_DIR)renderer.dll
+
+
 $(OBJ_DIR)win32_window.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)win32_window.hpp $(SRC_DIR)win32_window.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)win32_window.cpp -o $(OBJ_DIR)win32_window.o
 
-all: $(BIN_DIR)renderer.dll
 
 $(OBJ_DIR)renderer.o: $(PLATFORM_DEPENDENCE_SRC) $(SRC_DIR)device.hpp $(SRC_DIR)instance_creator.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)renderer.hpp $(SRC_DIR)renderer.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)renderer.cpp -o $(OBJ_DIR)renderer.o

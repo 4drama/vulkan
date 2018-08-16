@@ -8,13 +8,21 @@
 
 namespace vk_utils{
 
-using win32_window_wrapper = handle_wrapper<HWND, void>;
+struct win_app{
+	HWND window;
+	HINSTANCE hInstance;
+};
+
+using win32_window_wrapper = handle_wrapper<win_app, void>;
 
 template<>
-handle_wrapper<HWND, void>::handle_wrapper();
+win32_window_wrapper::handle_wrapper();
 
 template<>
-handle_wrapper<HWND, void>::~handle_wrapper();
+win32_window_wrapper::~handle_wrapper();
+
+template<>
+win32_window_wrapper& win32_window_wrapper:: operator=(win32_window_wrapper&& );
 
 class win32_window_creator{
 public:

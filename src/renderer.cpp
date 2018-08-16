@@ -20,6 +20,7 @@ vk::renderer::renderer(){
 		.set_resolution(640, 480)
 		.create();
 
+	m_surface = vk_utils::create_surface(m_window, m_instance.get(), nullptr);
 }
 
 vk::renderer::~renderer(){

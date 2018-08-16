@@ -5,16 +5,27 @@
 using win32_window_creator = vk_utils::win32_window_creator;
 
 template<>
-vk_utils::handle_wrapper<HWND, void>::handle_wrapper()
-	: m_handle(NULL), m_allocator_ptr(nullptr){
+vk_utils::win32_window_wrapper::handle_wrapper()
+	: m_handle(vk_utils::win_app{NULL, NULL}), m_allocator_ptr(nullptr){
 
 }
 
 template<>
-vk_utils::handle_wrapper<HWND, void>::~handle_wrapper(){
-	if(m_handle != NULL){
-		DestroyWindow(m_handle);
+vk_utils::win32_window_wrapper::~handle_wrapper(){
+	if(m_handle.window != NULL){
+		DestroyWindow(m_handle.window);
 	}
+}
+
+template<>
+vk_utils::win32_window_wrapper& vk_utils::win32_window_wrapper::operator=(
+	vk_utils::win32_window_wrapper&& other){
+
+    if (this != &other) {
+		this->m_handle = other.m_handle;
+		other.m_handle = vk_utils::win_app{NULL, NULL};
+    }
+    return *this;
 }
 
 win32_window_creator::win32_window_creator(WNDPROC process_func)
@@ -98,5 +109,7 @@ vk_utils::win32_window_wrapper win32_window_creator::create(){
 		std::string msg = "CreateWindow failed";
 		throw std::runtime_error(msg);
 	}
-	return vk_utils::win32_window_wrapper(window);
+
+	return vk_utils::win32_window_wrapper(
+		vk_utils::win_app{window, m_window_class_example.hInstance});
 }

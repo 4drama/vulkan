@@ -14,7 +14,7 @@ class renderer{
 	using instance_wrapper = vk_utils::instance_wrapper;
 	using device = vk_utils::device;
 	using window_wrapper = vk_utils::window_wrapper;
-
+	using surface_wrapper = vk_utils::surface_wrapper;
 public:
 	renderer();
 	~renderer();
@@ -27,6 +27,7 @@ private:
 	instance_wrapper m_instance;
 	device m_device;
 	window_wrapper m_window;
+	surface_wrapper m_surface;
 };
 
 }

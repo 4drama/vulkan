@@ -1,5 +1,8 @@
 #include "platform.hpp"
 
+#include <stdexcept>
+#include <string>
+
 #if defined(_WIN32)
 
 namespace{
@@ -12,6 +15,32 @@ vk_utils::platform_window_creator vk_utils::get_platform_window(){
 
 const char* vk_utils::get_surface_extension_name(){
 	return VK_KHR_WIN32_SURFACE_EXTENSION_NAME;
+}
+
+vk_utils::surface_wrapper vk_utils::create_surface(
+	vk_utils::window_wrapper& window,
+	VkInstance instance,
+	VkAllocationCallbacks *allocator_ptr){
+
+	VkWin32SurfaceCreateInfoKHR surface_info;
+
+	surface_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	surface_info.pNext = NULL;
+	surface_info.flags = 0;
+	surface_info.hinstance = window.get().hInstance;
+	surface_info.hwnd =  window.get().window;
+
+	VkResult res = VK_SUCCESS;
+	VkSurfaceKHR surface = VK_NULL_HANDLE;
+
+	res = vkCreateWin32SurfaceKHR(instance, &surface_info, allocator_ptr, &surface);
+
+	if(res != VK_SUCCESS){
+		std::string msg = "surface create failed";
+		throw std::runtime_error(msg);
+	}
+
+	return vk_utils::surface_wrapper(surface, instance, allocator_ptr);
 }
 
 namespace{
