@@ -26,7 +26,8 @@ platform_window_creator get_platform_window();
 const char* get_surface_extension_name();
 surface_wrapper create_surface(
 	window_wrapper& window, VkInstance instance, VkAllocationCallbacks *allocator_ptr);
-
+bool get_physical_device_presentation_support(
+	VkPhysicalDevice physical_device, uint32_t family_index) noexcept;
 }
 
 #endif //PLATFORM_HPP_

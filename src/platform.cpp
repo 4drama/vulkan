@@ -43,6 +43,18 @@ vk_utils::surface_wrapper vk_utils::create_surface(
 	return vk_utils::surface_wrapper(surface, instance, allocator_ptr);
 }
 
+bool vk_utils::get_physical_device_presentation_support(
+	VkPhysicalDevice physical_device, uint32_t family_index) noexcept{
+
+	VkBool32 result = vkGetPhysicalDeviceWin32PresentationSupportKHR(
+		physical_device, family_index);
+
+	if(result == VK_TRUE)
+		return true;
+	else
+		return false;
+}
+
 namespace{
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam){
 	switch(message){

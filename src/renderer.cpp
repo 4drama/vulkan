@@ -1,6 +1,9 @@
 #include "renderer.hpp"
 #include "instance_creator.hpp"
 
+#include <stdexcept>
+#include <string>
+
 vk::renderer::renderer(){
 	this->m_instance = vk_utils::instance_creator()
 		.add_extension(vk_utils::get_surface_extension_name())
@@ -19,6 +22,11 @@ vk::renderer::renderer(){
 	m_window = vk_utils::get_platform_window()
 		.set_resolution(640, 480)
 		.create();
+
+	if(!m_device.presentation_support_check_any()){
+		std::string msg = "Presentation not support.";
+		throw std::runtime_error(msg);
+	}
 
 	m_surface = vk_utils::create_surface(m_window, m_instance.get(), nullptr);
 }

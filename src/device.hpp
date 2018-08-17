@@ -37,6 +37,10 @@ public:
 	explicit device(VkPhysicalDevice physical_device, VkDevice logical_device,
 		VkAllocationCallbacks* allocator_ptr);
 
+	bool presentation_support_check(uint32_t index) const noexcept;
+	bool presentation_support_check_any() const noexcept;
+	std::vector<uint32_t> get_presentation_support() const;
+
 	device(device& ) = delete;
 	device& operator=(const device& ) = delete;
 	device& operator=(device&& ) = default;
