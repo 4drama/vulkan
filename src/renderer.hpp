@@ -3,7 +3,7 @@
 
 #include "platform.hpp"
 
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 
 #include "handle_wrapper.hpp"
 #include "device.hpp"

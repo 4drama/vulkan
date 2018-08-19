@@ -1,7 +1,7 @@
 #ifndef HANDLE_WRAPPER_HPP_
 #define HANDLE_WRAPPER_HPP_
 
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 
 #include <type_traits>
 

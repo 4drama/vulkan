@@ -23,11 +23,18 @@ using platform_window_creator = win32_window_creator;
 namespace vk_utils{
 
 platform_window_creator get_platform_window();
+
 const char* get_surface_extension_name();
+
 surface_wrapper create_surface(
-	window_wrapper& window, VkInstance instance, VkAllocationCallbacks *allocator_ptr);
+	const window_wrapper& window,
+	VkInstance instance,
+	VkAllocationCallbacks *allocator_ptr);
+
 bool get_physical_device_presentation_support(
 	VkPhysicalDevice physical_device, uint32_t family_index) noexcept;
+
+void show_window(const window_wrapper& window) noexcept;
 }
 
 #endif //PLATFORM_HPP_

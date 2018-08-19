@@ -1,7 +1,7 @@
 #ifndef DEVICE_HPP_
 #define DEVICE_HPP_
 
-#include <vulkan\vulkan.h>
+#include <vulkan/vulkan.h>
 
 #include <vector>
 #include <map>

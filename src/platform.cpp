@@ -18,7 +18,7 @@ const char* vk_utils::get_surface_extension_name(){
 }
 
 vk_utils::surface_wrapper vk_utils::create_surface(
-	vk_utils::window_wrapper& window,
+	const vk_utils::window_wrapper& window,
 	VkInstance instance,
 	VkAllocationCallbacks *allocator_ptr){
 
