@@ -33,8 +33,8 @@ else
 		PLATFORM_DEPENDENCE_OBJ += $(OBJ_DIR)xlib_window.o
 		PLATFORM_DEPENDENCE_SRC += $(SRC_DIR)xlib_window.hpp
 
-		VK_INCLUDE += -I/usr/Include
-		VK_LIB += -L/usr/Lib -L/usr/X11R6/lib
+		VK_INCLUDE += -I/home/evgeny/VulkanAPI/1.1.82.0/x86_64/include
+		VK_LIB += -L/home/evgeny/VulkanAPI/1.1.82.0/x86_64/lib
 
 		LDFLAG += -lvulkan -lX11
 

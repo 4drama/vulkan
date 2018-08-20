@@ -8,6 +8,7 @@
 #include <string>
 
 #include "handle_wrapper.hpp"
+#include "platform.hpp"
 
 namespace vk_utils{
 
@@ -37,9 +38,12 @@ public:
 	explicit device(VkPhysicalDevice physical_device, VkDevice logical_device,
 		VkAllocationCallbacks* allocator_ptr);
 
-	[[nodiscard]] bool presentation_support_check(uint32_t index) const noexcept;
-	[[nodiscard]] bool presentation_support_check_any() const noexcept;
-	std::vector<uint32_t> get_presentation_support() const;
+	[[nodiscard]] bool presentation_support_check(const window_wrapper& window,
+		uint32_t index) const noexcept;
+	[[nodiscard]] bool presentation_support_check_any(
+		const window_wrapper& window) const noexcept;
+	std::vector<uint32_t> get_presentation_support(
+		const window_wrapper& window) const;
 
 	device(device& ) = delete;
 	device& operator=(const device& ) = delete;

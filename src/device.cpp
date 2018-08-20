@@ -57,29 +57,35 @@ device::device(VkPhysicalDevice physical_device, VkDevice logical_device,
 	}
 }
 
-bool device::presentation_support_check(uint32_t index) const noexcept{
+bool device::presentation_support_check(const window_wrapper& window,
+	uint32_t index) const noexcept{
+
 	if(index < m_queue_families.size()){
 		bool result = vk_utils::get_physical_device_presentation_support(
-			m_physical_device, index);
+			window, m_physical_device, index);
 		return result;
 	} else
 		return false;
 }
 
-bool device::presentation_support_check_any() const noexcept{
+bool device::presentation_support_check_any(const window_wrapper& window
+	) const noexcept{
+
 	bool find = false;
 	for(uint32_t i = 0 ; i < m_queue_families.size(); i++){
-		find = this->presentation_support_check(i);
+		find = this->presentation_support_check(window, i);
 		if(find == true)
 			break;
 	}
 	return find;
 }
 
-std::vector<uint32_t> device::get_presentation_support() const{
+std::vector<uint32_t> device::get_presentation_support(
+	const window_wrapper& window) const{
+
 	std::vector<uint32_t> result{};
 	for(uint32_t i = 0 ; i < m_queue_families.size(); i++){
-		if(this->presentation_support_check(i))
+		if(this->presentation_support_check(window, i))
 			result.push_back(i);
 	}
 

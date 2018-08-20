@@ -23,7 +23,7 @@ vk::renderer::renderer(){
 		.set_resolution(640, 480)
 		.create();
 
-	if(!m_device.presentation_support_check_any()){
+	if(!m_device.presentation_support_check_any(m_window)){
 		std::string msg = "Presentation not support.";
 		throw std::runtime_error(msg);
 	}
