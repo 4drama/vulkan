@@ -52,7 +52,7 @@ vk_utils::surface_wrapper vk_utils::create_surface(
 	surface_info.dpy = window.get().display;
 	surface_info.window = window.get().window;
 
-	res = vkCreateXlibSurfaceKH(instance, &surface_info, allocator_ptr, &surface);
+	res = vkCreateXlibSurfaceKHR(instance, &surface_info, allocator_ptr, &surface);
 #endif
 	if(res != VK_SUCCESS){
 		std::string msg = "surface create failed";
@@ -63,7 +63,7 @@ vk_utils::surface_wrapper vk_utils::create_surface(
 }
 
 bool vk_utils::get_physical_device_presentation_support(
-	const window_wrapper& window,
+	const vk_utils::window_wrapper& window,
 	VkPhysicalDevice physical_device,
 	uint32_t family_index) noexcept{
 
@@ -73,7 +73,10 @@ bool vk_utils::get_physical_device_presentation_support(
 	result = vkGetPhysicalDeviceWin32PresentationSupportKHR(
 		physical_device, family_index);
 #elif defined(__linux__)
-	result = vkGetPhysicalDeviceXlibPresentatonSupportKHR();
+
+	result = vkGetPhysicalDeviceXlibPresentationSupportKHR(
+		physical_device, family_index,
+		window.get().display, vk_utils::get_VisualID(window));
 #endif
 
 	if(result == VK_TRUE)
@@ -82,7 +85,7 @@ bool vk_utils::get_physical_device_presentation_support(
 		return false;
 }
 
-void show_window(const window_wrapper& window) noexcept{
+void show_window(const vk_utils::window_wrapper& window) noexcept{
 #if defined(_WIN32)
 	ShowWindow(window.get().window, SW_SHOW);
 	UpdateWindow(window.get().window);

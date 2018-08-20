@@ -20,8 +20,8 @@
 	#include "xlib_window.hpp"
 
 	namespace vk_utils{
-		using window_wrapper = win32_window_wrapper;
-		using platform_window_creator = win32_window_creator;
+		using window_wrapper = xlib_window_wrapper;
+		using platform_window_creator = xlib_window_creator;
 	}
 #endif
 

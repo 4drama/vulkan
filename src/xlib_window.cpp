@@ -1,5 +1,9 @@
 #include "xlib_window.hpp"
 
+#include <X11/Xutil.h>
+
+#include <stdexcept>
+
 using xlib_window_creator = vk_utils::xlib_window_creator;
 
 using xlib_window_wrapper = vk_utils::xlib_window_wrapper;
@@ -8,7 +12,7 @@ template<>
 xlib_window_wrapper::handle_wrapper(){
 	m_handle.display = nullptr;
 	m_handle.window = 0;
-	m_handle.event = 0;
+	m_handle.event.type = 0;
 	m_handle.screen_number = 0;
 	m_handle.gc = 0;
 
@@ -24,7 +28,7 @@ xlib_window_wrapper::~handle_wrapper(){
 }
 
 template<>
-xlib_window_wrapper& xlib_window_wrapper:: operator=(xlib_window_wrapper&& ){
+xlib_window_wrapper& xlib_window_wrapper:: operator=(xlib_window_wrapper&& other){
 	if (this != &other) {
 		this->m_handle = other.m_handle;
 		other.m_handle = vk_utils::xlib_app{nullptr, 0, 0, 0, 0};
@@ -48,6 +52,18 @@ xlib_window_creator& xlib_window_creator::set_resolution(
 	m_width = width;
 	m_height = height;
 	return *this;
+}
+
+namespace{
+	void set_title(const char *title_ptr, Display *display, Window window){
+		XTextProperty windowname;
+
+		XStringListToTextProperty((char**)&title_ptr, 1, &windowname);
+
+		XSetWMProperties(display, window, &windowname,
+	  		NULL, NULL, NULL, NULL, NULL,
+	  		NULL );
+	}
 }
 
 xlib_window_wrapper xlib_window_creator::create(){
@@ -75,4 +91,29 @@ xlib_window_wrapper xlib_window_creator::create(){
 	window.gc = XCreateGC ( window.display, window.window, 0 , NULL );
 
 	return xlib_window_wrapper(window);
+}
+
+VisualID vk_utils::get_VisualID(const xlib_window_wrapper& window){
+
+	XVisualInfo vTemplate;    /* template of the visual we want */
+	XVisualInfo *visualList;  /* list of XVisualInfo structs that match */
+	int visualsMatched;       /* number of visuals that match */
+
+	/*
+	 * Set up the XVisualInfo template so that it returns
+	 * a list of all the visuals of depth 8 defined on the
+	 * current screen by the X server
+	 */
+	vTemplate.screen = window.get().screen_number;
+	vTemplate.depth = 8;
+
+	visualList = XGetVisualInfo(window.get().display, VisualIDMask,
+		&vTemplate, &visualsMatched);
+
+	if ( visualsMatched == 0 ){
+		std::string msg = "No matching visuals";
+		throw std::runtime_error(msg);
+	}
+
+	return vTemplate.visualid;
 }

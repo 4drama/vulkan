@@ -40,7 +40,7 @@ public:
 
 	[[nodiscard]] xlib_window_wrapper create();
 
-	xlib_window_creator(win32_window_creator& ) = delete;
+	xlib_window_creator(xlib_window_creator& ) = delete;
 	xlib_window_creator& operator=(const xlib_window_creator& ) = delete;
 private:
 
@@ -48,6 +48,8 @@ private:
 	uint32_t m_width;
 	uint32_t m_height;
 };
+
+VisualID get_VisualID(const xlib_window_wrapper& window);
 
 }
 

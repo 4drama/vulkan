@@ -12,6 +12,8 @@ CFLAGS= -c -Wall -std=c++17 -g
 SHARED_FORM=
 EXEC_FORM=
 
+LIB_PRE=
+
 ifeq ($(OS),Windows_NT)
 	PLATFORM += WIN32
 
@@ -37,7 +39,9 @@ else
 		VK_LIB += -L/home/evgeny/VulkanAPI/1.1.82.0/x86_64/lib
 
 		LDFLAG += -lvulkan -lX11
+		CFLAGS += -fPIC
 
+		LIB_PRE =lib
 		SHARED_FORM =.so
 		EXEC_FORM =.out
 	endif
@@ -74,7 +78,7 @@ $(OBJ_DIR)platform.o: $(PLATFORM_DEPENDENCE_SRC) $(SRC_DIR)handle_wrapper.hpp $(
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)platform.cpp -o $(OBJ_DIR)platform.o
 
 $(BIN_DIR)renderer$(SHARED_FORM): $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o
-	gcc $(VK_LIB) -shared $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o -o  $(BIN_DIR)renderer$(SHARED_FORM) $(LDFLAG)
+	gcc $(VK_LIB) -shared $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o -o  $(BIN_DIR)$(LIB_PRE)renderer$(SHARED_FORM) $(LDFLAG)
 
 run:
 
@@ -82,13 +86,13 @@ test1: $(BIN_DIR)renderer_test_1$(EXEC_FORM)
 	$(BIN_DIR)renderer_test_1$(EXEC_FORM)
 
 $(BIN_DIR)renderer_test_1$(EXEC_FORM): $(BIN_DIR)renderer$(SHARED_FORM)
-	gcc $(VK_INCLUDE) $(VK_LIB) -O0 -I$(SRC_DIR) $(TESTS_DIR)renderer_test_1.cpp -o $(BIN_DIR)renderer_test_1$(EXEC_FORM) -L$(BIN_DIR) -lrenderer
+	gcc $(VK_INCLUDE) $(VK_LIB) -O0 -I$(SRC_DIR) $(TESTS_DIR)renderer_test_1.cpp $(BIN_DIR)$(LIB_PRE)renderer$(SHARED_FORM) -o $(BIN_DIR)renderer_test_1$(EXEC_FORM)
 
 clean:
 	rm -rf  $(OBJ_DIR)*.o
 
 	rm -rf  $(BIN_DIR)*.dll
 	rm -rf  $(BIN_DIR)*.so
-	
+
 	rm -rf  $(BIN_DIR)*.exe
 	rm -rf  $(BIN_DIR)*.out
