@@ -1,9 +1,9 @@
 #include "device.hpp"
 
 #include "platform.hpp"
+#include "vulkan_exception.hpp"
 
 #include <vector>
-#include <stdexcept>
 #include <string>
 
 #include <cassert>
@@ -91,7 +91,7 @@ std::vector<uint32_t> device::get_presentation_support(
 
 	if(result.size() == 0){
 		std::string msg = "Presentation not support.";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg);
 	}
 
 	return result;
@@ -155,7 +155,7 @@ device_creator& device_creator::add_extension(const std::string& extension){
 	}
 
 	std::string msg = "extension " + extension + " not supported";
-	throw std::runtime_error(msg);
+	throw vk_utils::vulkan_error(msg);
 }
 
 device_creator& device_creator::add_layer(const std::string& layer){
@@ -169,7 +169,7 @@ device_creator& device_creator::add_layer(const std::string& layer){
 	}
 
 	std::string msg = "layer " + layer + " not supported";
-	throw std::runtime_error(msg);
+	throw vk_utils::vulkan_error(msg);
 }
 
 device_creator& device_creator::add_feature(const std::string& feature){
@@ -184,7 +184,7 @@ device_creator& device_creator::add_feature(const std::string& feature){
 		m_required_features.geometryShader = VK_TRUE;
 	} else {
 		std::string msg = "Feature " + feature + "not found.";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg);
 	}
 
 	return *this;
@@ -216,7 +216,7 @@ device device_creator::create(){
 	res = vkCreateDevice(m_physical_device, &m_device_info, m_allocator_ptr, &logic_device);
 	if(res != VK_SUCCESS){
 		std::string msg = "vkCreateDevice failed";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg, res);
 	}
 
 	return device(m_physical_device, logic_device, m_allocator_ptr);
@@ -232,7 +232,7 @@ std::vector<VkPhysicalDevice> f_get_physical_device(VkInstance instance){
 	res = vkEnumeratePhysicalDevices(instance, &device_count, nullptr);
 	if(res != VK_SUCCESS){
 		std::string msg = "vkEnumeratePhysicalDevices get counter";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg, res);
 	}
 
 	std::vector<VkPhysicalDevice> physical_devices(device_count);
@@ -241,12 +241,12 @@ std::vector<VkPhysicalDevice> f_get_physical_device(VkInstance instance){
 	res = vkEnumeratePhysicalDevices(instance, &device_count, physical_devices.data());
 	if(res != VK_SUCCESS){
 		std::string msg = "vkEnumeratePhysicalDevices get devices handles";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg, res);
 	}
 
 	if(device_count == 0){
 		std::string msg = "no physical device supporting VulkanAPI";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg, res);
 	}
 
 	return physical_devices;
@@ -339,7 +339,7 @@ VkPhysicalDeviceProperties
 
 	if(res != VK_SUCCESS){
 		std::string msg = "vkEnumerateDeviceLayerProperties get counter";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg, res);
 	}
 
 	res = vkEnumerateDeviceLayerProperties(
@@ -347,7 +347,7 @@ VkPhysicalDeviceProperties
 
 	if(res != VK_SUCCESS){
 		std::string msg = "vkEnumerateDeviceLayerProperties get propertis";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg, res);
 	}
 
 	return layers_property;
@@ -367,7 +367,7 @@ VkPhysicalDeviceProperties
 
 	if(res != VK_SUCCESS){
 		std::string msg = "vkEnumerateDeviceExtensionProperties get counter";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg, res);
 	}
 
 	res = vkEnumerateDeviceExtensionProperties(
@@ -375,7 +375,7 @@ VkPhysicalDeviceProperties
 
 	if(res != VK_SUCCESS){
 		std::string msg = "vkEnumerateDeviceExtensionProperties get propertis";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg, res);
 	}
 
 	return extension_property;
@@ -479,7 +479,7 @@ VkDeviceMemory device_memory::allocate_memory(VkMemoryRequirements req,
 	res = vkAllocateMemory(m_device, &allocate_info, m_allocator_ptr, &memory);
 	if(res != VK_SUCCESS){
 		std::string msg = "vkAllocateMemory";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg, res);
 	}
 
 	m_device_handlers[memory] = heap.index;

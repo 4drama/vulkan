@@ -1,6 +1,6 @@
 #include "platform.hpp"
+#include "vulkan_exception.hpp"
 
-#include <stdexcept>
 #include <string>
 
 #if defined(_WIN32)
@@ -56,7 +56,7 @@ vk_utils::surface_wrapper vk_utils::create_surface(
 #endif
 	if(res != VK_SUCCESS){
 		std::string msg = "surface create failed";
-		throw std::runtime_error(msg);
+		throw vk_utils::vulkan_error(msg, res);
 	}
 
 	return vk_utils::surface_wrapper(surface, instance, allocator_ptr);

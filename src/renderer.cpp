@@ -1,7 +1,7 @@
 #include "renderer.hpp"
 #include "instance_creator.hpp"
+#include "vulkan_exception.hpp"
 
-#include <stdexcept>
 #include <string>
 
 vk::renderer::renderer(){
