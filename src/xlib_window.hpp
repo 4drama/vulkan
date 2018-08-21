@@ -5,6 +5,7 @@
 #include "handle_wrapper.hpp"
 
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
 namespace vk_utils{
 
@@ -13,6 +14,7 @@ struct xlib_app{
 	Window window;
 	XEvent event;
 	int screen_number;
+	XVisualInfo visual_info;
 	GC gc;
 };
 
@@ -48,8 +50,6 @@ private:
 	uint32_t m_width;
 	uint32_t m_height;
 };
-
-VisualID get_VisualID(const xlib_window_wrapper& window);
 
 }
 

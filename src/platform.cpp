@@ -76,7 +76,7 @@ bool vk_utils::get_physical_device_presentation_support(
 
 	result = vkGetPhysicalDeviceXlibPresentationSupportKHR(
 		physical_device, family_index,
-		window.get().display, vk_utils::get_VisualID(window));
+		window.get().display, window.get().visual_info.visualid);
 #endif
 
 	if(result == VK_TRUE)

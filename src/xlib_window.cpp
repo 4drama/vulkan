@@ -1,7 +1,5 @@
 #include "xlib_window.hpp"
 
-#include <X11/Xutil.h>
-
 #include <stdexcept>
 
 using xlib_window_creator = vk_utils::xlib_window_creator;
@@ -14,6 +12,7 @@ xlib_window_wrapper::handle_wrapper(){
 	m_handle.window = 0;
 	m_handle.event.type = 0;
 	m_handle.screen_number = 0;
+	XVisualInfo visual_info = {0};
 	m_handle.gc = 0;
 
 	m_allocator_ptr = nullptr;
@@ -31,13 +30,13 @@ template<>
 xlib_window_wrapper& xlib_window_wrapper:: operator=(xlib_window_wrapper&& other){
 	if (this != &other) {
 		this->m_handle = other.m_handle;
-		other.m_handle = vk_utils::xlib_app{nullptr, 0, 0, 0, 0};
+		other.m_handle = vk_utils::xlib_app{nullptr, 0, 0, 0, {0}, 0};
     }
     return *this;
 }
 
 xlib_window_creator::xlib_window_creator()
-	: m_window_name("win32_window"), m_width(800), m_height(600){
+	: m_window_name("xlib_window"), m_width(800), m_height(600){
 
 }
 
@@ -77,11 +76,27 @@ xlib_window_wrapper xlib_window_creator::create(){
 
 	window.screen_number = DefaultScreen(window.display);
 
-	window.window =  XCreateSimpleWindow(
-			window.display, RootWindow(window.display, window.screen_number),
-			0, 0, m_width, m_height, 1,
-            BlackPixel(window.display, window.screen_number),
-			WhitePixel(window.display, window.screen_number));
+	int depth = 32;
+
+	if (!XMatchVisualInfo(window.display, XDefaultScreen(window.display),
+	 	depth, TrueColor, &window.visual_info)){
+
+		std::string msg = "XMatchVisualInfo failed";
+		throw std::runtime_error(msg);
+	}
+
+	Window parent = XDefaultRootWindow(window.display);
+	XSetWindowAttributes attrs{0};
+
+	attrs.colormap = XCreateColormap(window.display,
+		parent, window.visual_info.visual, AllocNone);
+	attrs.background_pixel = 0;
+	attrs.border_pixel = 0;
+
+	window.window = XCreateWindow(window.display,
+		parent, 10, 10, m_width, m_height, 1,
+		depth, InputOutput, window.visual_info.visual,
+		CWBackPixel | CWColormap | CWBorderPixel, &attrs);
 
 	set_title(m_window_name.c_str(), window.display, window.window);
 
@@ -91,29 +106,4 @@ xlib_window_wrapper xlib_window_creator::create(){
 	window.gc = XCreateGC ( window.display, window.window, 0 , NULL );
 
 	return xlib_window_wrapper(window);
-}
-
-VisualID vk_utils::get_VisualID(const xlib_window_wrapper& window){
-
-	XVisualInfo vTemplate;    /* template of the visual we want */
-	XVisualInfo *visualList;  /* list of XVisualInfo structs that match */
-	int visualsMatched;       /* number of visuals that match */
-
-	/*
-	 * Set up the XVisualInfo template so that it returns
-	 * a list of all the visuals of depth 8 defined on the
-	 * current screen by the X server
-	 */
-	vTemplate.screen = window.get().screen_number;
-	vTemplate.depth = 8;
-
-	visualList = XGetVisualInfo(window.get().display, VisualIDMask,
-		&vTemplate, &visualsMatched);
-
-	if ( visualsMatched == 0 ){
-		std::string msg = "No matching visuals";
-		throw std::runtime_error(msg);
-	}
-
-	return vTemplate.visualid;
 }
