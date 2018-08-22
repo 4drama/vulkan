@@ -80,7 +80,10 @@ $(OBJ_DIR)platform.o: $(SRC_DIR)vulkan_exception.hpp $(PLATFORM_DEPENDENCE_SRC) 
 $(OBJ_DIR)vulkan_exception.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)vulkan_exception.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)vulkan_exception.cpp -o $(OBJ_DIR)vulkan_exception.o
 
-$(BIN_DIR)renderer$(SHARED_FORM): $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o $(OBJ_DIR)vulkan_exception.o
+$(OBJ_DIR)image_creator.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)image_creator.hpp $(SRC_DIR)image_creator.cpp
+	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)image_creator.cpp -o $(OBJ_DIR)image_creator.o
+
+$(BIN_DIR)renderer$(SHARED_FORM): $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o $(OBJ_DIR)vulkan_exception.o $(OBJ_DIR)image_creator.o
 	gcc $(VK_LIB) -shared $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o $(OBJ_DIR)vulkan_exception.o -o  $(BIN_DIR)$(LIB_PRE)renderer$(SHARED_FORM) $(LDFLAG)
 
 run:
