@@ -4,18 +4,17 @@
 #include <vulkan/vulkan.h>
 
 #include <vector>
-#include <map>
 #include <string>
 
 #include "handle_wrapper.hpp"
 #include "platform.hpp"
+#include "device_memory.hpp"
 
 namespace vk_utils{
 
 class queue_family;
 class device;
 class device_creator;
-class device_memory;
 
 class queue_family{
 public:
@@ -56,6 +55,8 @@ public:
 private:
 	VkPhysicalDevice m_physical_device;
 	device_wrapper m_logical_device;
+
+	device_memory m_memory;
 	std::vector<queue_family> m_queue_families;
 };
 
@@ -85,32 +86,6 @@ private:
 	VkPhysicalDeviceFeatures m_required_features;
 
 	VkPhysicalDevice m_physical_device;
-};
-
-class device_memory{
-public:
-	device_memory() = delete;
-	explicit device_memory(VkPhysicalDevice physical_device, VkDevice device,
-		VkAllocationCallbacks* allocator_ptr);
-
-	VkDeviceMemory allocate_memory(VkMemoryRequirements req,
-		VkMemoryPropertyFlags flags);
-	void free_memory(VkDeviceMemory memory);
-
-	device_memory(device_memory& ) = delete;
-	device_memory& operator=(const device_memory& ) = delete;
-
-private:
-	class memory_type;
-	class memory_heap;
-
-	std::vector<memory_type> m_types;
-	std::vector<memory_heap> m_heaps;
-
-	std::map<VkDeviceMemory, uint32_t> m_device_handlers;
-
-	VkDevice m_device;
-	VkAllocationCallbacks* m_allocator_ptr;
 };
 
 }

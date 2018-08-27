@@ -71,7 +71,7 @@ $(OBJ_DIR)instance_creator.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)handle_wr
 $(OBJ_DIR)handle_wrapper.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)handle_wrapper.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)handle_wrapper.cpp -o $(OBJ_DIR)handle_wrapper.o
 
-$(OBJ_DIR)device.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)device.hpp $(SRC_DIR)device.cpp
+$(OBJ_DIR)device.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)device_memory.hpp $(SRC_DIR)device.hpp $(SRC_DIR)device.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)device.cpp -o $(OBJ_DIR)device.o
 
 $(OBJ_DIR)platform.o: $(SRC_DIR)vulkan_exception.hpp $(PLATFORM_DEPENDENCE_SRC) $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)platform.hpp $(SRC_DIR)platform.cpp
@@ -83,8 +83,11 @@ $(OBJ_DIR)vulkan_exception.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)vulkan_ex
 $(OBJ_DIR)image_creator.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)image_creator.hpp $(SRC_DIR)image_creator.cpp
 	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)image_creator.cpp -o $(OBJ_DIR)image_creator.o
 
-$(BIN_DIR)renderer$(SHARED_FORM): $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o $(OBJ_DIR)vulkan_exception.o $(OBJ_DIR)image_creator.o
-	gcc $(VK_LIB) -shared $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o $(OBJ_DIR)vulkan_exception.o -o  $(BIN_DIR)$(LIB_PRE)renderer$(SHARED_FORM) $(LDFLAG)
+$(OBJ_DIR)device_memory.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)device_memory.hpp $(SRC_DIR)device_memory.cpp
+	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)device_memory.cpp -o $(OBJ_DIR)device_memory.o
+
+$(BIN_DIR)renderer$(SHARED_FORM): $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o $(OBJ_DIR)vulkan_exception.o $(OBJ_DIR)image_creator.o $(OBJ_DIR)device_memory.o
+	gcc $(VK_LIB) -shared $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o $(OBJ_DIR)vulkan_exception.o $(OBJ_DIR)device_memory.o -o  $(BIN_DIR)$(LIB_PRE)renderer$(SHARED_FORM) $(LDFLAG)
 
 run:
 
