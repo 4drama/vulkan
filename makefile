@@ -55,47 +55,129 @@ TESTS_DIR= ./tests/
 all: $(BIN_DIR)renderer$(SHARED_FORM)
 
 
-$(OBJ_DIR)win32_window.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)win32_window.hpp $(SRC_DIR)win32_window.cpp
-	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)win32_window.cpp -o $(OBJ_DIR)win32_window.o
+$(OBJ_DIR)win32_window.o: \
+	$(SRC_DIR)handle_wrapper.hpp \
+	$(SRC_DIR)win32_window.hpp $(SRC_DIR)win32_window.cpp
 
-$(OBJ_DIR)xlib_window.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)xlib_window.hpp $(SRC_DIR)xlib_window.cpp
-	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)xlib_window.cpp -o $(OBJ_DIR)xlib_window.o
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)win32_window.cpp -o $(OBJ_DIR)win32_window.o
+
+$(OBJ_DIR)xlib_window.o: \
+	$(SRC_DIR)handle_wrapper.hpp \
+	$(SRC_DIR)xlib_window.hpp $(SRC_DIR)xlib_window.cpp
+
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)xlib_window.cpp -o $(OBJ_DIR)xlib_window.o
 
 
-$(OBJ_DIR)renderer.o: $(SRC_DIR)vulkan_exception.hpp $(PLATFORM_DEPENDENCE_SRC) $(SRC_DIR)device.hpp $(SRC_DIR)instance_creator.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)renderer.hpp $(SRC_DIR)renderer.cpp
-	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)renderer.cpp -o $(OBJ_DIR)renderer.o
+$(OBJ_DIR)renderer.o: \
+	$(SRC_DIR)vulkan_exception.hpp \
+	$(PLATFORM_DEPENDENCE_SRC) \
+	$(SRC_DIR)device.hpp \
+	$(SRC_DIR)instance_creator.hpp \
+	$(SRC_DIR)handle_wrapper.hpp \
+	$(SRC_DIR)renderer.hpp $(SRC_DIR)renderer.cpp
 
-$(OBJ_DIR)instance_creator.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)instance_creator.hpp $(SRC_DIR)instance_creator.cpp
-	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)instance_creator.cpp -o $(OBJ_DIR)instance_creator.o
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)renderer.cpp -o $(OBJ_DIR)renderer.o
 
-$(OBJ_DIR)handle_wrapper.o: $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)handle_wrapper.cpp
-	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)handle_wrapper.cpp -o $(OBJ_DIR)handle_wrapper.o
+$(OBJ_DIR)instance_creator.o: \
+	$(SRC_DIR)vulkan_exception.hpp \
+	$(SRC_DIR)handle_wrapper.hpp \
+	$(SRC_DIR)instance_creator.hpp $(SRC_DIR)instance_creator.cpp
 
-$(OBJ_DIR)device.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)device_memory.hpp $(SRC_DIR)device.hpp $(SRC_DIR)device.cpp
-	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)device.cpp -o $(OBJ_DIR)device.o
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)instance_creator.cpp -o $(OBJ_DIR)instance_creator.o
 
-$(OBJ_DIR)platform.o: $(SRC_DIR)vulkan_exception.hpp $(PLATFORM_DEPENDENCE_SRC) $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)platform.hpp $(SRC_DIR)platform.cpp
-	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)platform.cpp -o $(OBJ_DIR)platform.o
+$(OBJ_DIR)handle_wrapper.o: \
+	$(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)handle_wrapper.cpp
 
-$(OBJ_DIR)vulkan_exception.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)vulkan_exception.cpp
-	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)vulkan_exception.cpp -o $(OBJ_DIR)vulkan_exception.o
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)handle_wrapper.cpp -o $(OBJ_DIR)handle_wrapper.o
 
-$(OBJ_DIR)image_creator.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)handle_wrapper.hpp $(SRC_DIR)image_creator.hpp $(SRC_DIR)image_creator.cpp
-	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)image_creator.cpp -o $(OBJ_DIR)image_creator.o
+$(OBJ_DIR)device.o: \
+	$(SRC_DIR)vulkan_exception.hpp \
+	$(SRC_DIR)handle_wrapper.hpp \
+	$(SRC_DIR)device_memory.hpp \
+	$(SRC_DIR)device.hpp $(SRC_DIR)device.cpp
 
-$(OBJ_DIR)device_memory.o: $(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)device_memory.hpp $(SRC_DIR)device_memory.cpp
-	gcc $(VK_INCLUDE) $(CFLAGS) $(SRC_DIR)device_memory.cpp -o $(OBJ_DIR)device_memory.o
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)device.cpp -o $(OBJ_DIR)device.o
 
-$(BIN_DIR)renderer$(SHARED_FORM): $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o $(OBJ_DIR)vulkan_exception.o $(OBJ_DIR)image_creator.o $(OBJ_DIR)device_memory.o
-	gcc $(VK_LIB) -shared $(OBJ_DIR)renderer.o $(OBJ_DIR)instance_creator.o $(OBJ_DIR)handle_wrapper.o $(OBJ_DIR)device.o $(PLATFORM_DEPENDENCE_OBJ) $(OBJ_DIR)platform.o $(OBJ_DIR)vulkan_exception.o $(OBJ_DIR)device_memory.o -o  $(BIN_DIR)$(LIB_PRE)renderer$(SHARED_FORM) $(LDFLAG)
+$(OBJ_DIR)platform.o: \
+	$(SRC_DIR)vulkan_exception.hpp \
+	$(PLATFORM_DEPENDENCE_SRC) \
+	$(SRC_DIR)handle_wrapper.hpp \
+	$(SRC_DIR)platform.hpp $(SRC_DIR)platform.cpp
+
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)platform.cpp -o $(OBJ_DIR)platform.o
+
+$(OBJ_DIR)vulkan_exception.o: \
+	$(SRC_DIR)vulkan_exception.hpp $(SRC_DIR)vulkan_exception.cpp
+
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)vulkan_exception.cpp -o $(OBJ_DIR)vulkan_exception.o
+
+$(OBJ_DIR)image_creator.o: \
+	$(SRC_DIR)vulkan_exception.hpp \
+	$(SRC_DIR)handle_wrapper.hpp \
+	$(SRC_DIR)image_creator.hpp $(SRC_DIR)image_creator.cpp
+
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)image_creator.cpp -o $(OBJ_DIR)image_creator.o
+
+$(OBJ_DIR)device_memory.o: \
+	$(SRC_DIR)vulkan_exception.hpp \
+	$(SRC_DIR)device_memory.hpp $(SRC_DIR)device_memory.cpp
+
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)device_memory.cpp -o $(OBJ_DIR)device_memory.o
+
+$(OBJ_DIR)image.o: \
+	$(SRC_DIR)vulkan_exception.hpp \
+	$(SRC_DIR)image.hpp $(SRC_DIR)image.cpp
+
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)image.cpp -o $(OBJ_DIR)image.o
+
+$(BIN_DIR)renderer$(SHARED_FORM): \
+	$(OBJ_DIR)renderer.o \
+	$(OBJ_DIR)instance_creator.o \
+	$(OBJ_DIR)handle_wrapper.o \
+	$(OBJ_DIR)device.o \
+	$(PLATFORM_DEPENDENCE_OBJ) \
+	$(OBJ_DIR)platform.o \
+	$(OBJ_DIR)vulkan_exception.o \
+	$(OBJ_DIR)image_creator.o \
+	$(OBJ_DIR)device_memory.o \
+	$(OBJ_DIR)image.o
+
+	gcc $(VK_LIB) -shared \
+	$(OBJ_DIR)renderer.o \
+	$(OBJ_DIR)instance_creator.o \
+	$(OBJ_DIR)handle_wrapper.o \
+	$(OBJ_DIR)device.o \
+	$(PLATFORM_DEPENDENCE_OBJ) \
+	$(OBJ_DIR)platform.o \
+	$(OBJ_DIR)vulkan_exception.o \
+	$(OBJ_DIR)device_memory.o \
+	$(OBJ_DIR)image.o \
+	-o  $(BIN_DIR)$(LIB_PRE)renderer$(SHARED_FORM) $(LDFLAG)
 
 run:
 
 test1: $(BIN_DIR)renderer_test_1$(EXEC_FORM)
 	$(BIN_DIR)renderer_test_1$(EXEC_FORM)
 
-$(BIN_DIR)renderer_test_1$(EXEC_FORM): $(BIN_DIR)renderer$(SHARED_FORM)
-	gcc $(VK_INCLUDE) $(VK_LIB) -O0 -I$(SRC_DIR) $(TESTS_DIR)renderer_test_1.cpp $(BIN_DIR)$(LIB_PRE)renderer$(SHARED_FORM) -o $(BIN_DIR)renderer_test_1$(EXEC_FORM)
+$(BIN_DIR)renderer_test_1$(EXEC_FORM): \
+	$(BIN_DIR)renderer$(SHARED_FORM)
+
+	gcc $(VK_INCLUDE) $(VK_LIB) -O0 \
+	-I$(SRC_DIR) \
+	$(TESTS_DIR)renderer_test_1.cpp \
+	$(BIN_DIR)$(LIB_PRE)renderer$(SHARED_FORM) \
+	-o $(BIN_DIR)renderer_test_1$(EXEC_FORM)
 
 clean:
 	rm -rf  $(OBJ_DIR)*.o
