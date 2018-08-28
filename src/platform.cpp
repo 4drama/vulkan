@@ -46,7 +46,7 @@ vk_utils::surface_wrapper vk_utils::create_surface(
 #elif defined(__linux__)
 	VkXlibSurfaceCreateInfoKHR surface_info;
 
-	surface_info.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+	surface_info.sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR;
 	surface_info.pNext = NULL;
 	surface_info.flags = 0;
 	surface_info.dpy = window.get().display;
