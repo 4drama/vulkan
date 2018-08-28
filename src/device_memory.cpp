@@ -3,6 +3,8 @@
 #include "vulkan_exception.hpp"
 
 #include <cassert>
+#include <cstdlib>
+#include <iostream>
 
 using device_memory = vk_utils::device_memory;
 
@@ -76,7 +78,7 @@ VkDeviceMemory device_memory::allocate_memory(VkMemoryRequirements req,
 	return memory;
 }
 
-void device_memory::free_memory(VkDeviceMemory memory){
+void device_memory::free_memory(VkDeviceMemory memory) noexcept{
 	assert(memory != VK_NULL_HANDLE);
 
 	VkDeviceSize size = 0;
@@ -86,11 +88,25 @@ void device_memory::free_memory(VkDeviceMemory memory){
 
 	uint32_t index = m_device_handlers[memory];
 	m_heaps[index].calc_free(size);
-	m_device_handlers.erase(memory);
+
+	try{
+		m_device_handlers.erase(memory);
+	} catch(...) {
+		std::cerr << "Compare object should not throw exception." << std::endl;
+		std::abort();
+	}
 }
 
 uint32_t device_memory::get_queue_families_size() const noexcept{
 	return m_types.size();
+}
+
+VkDevice device_memory::get_device() const noexcept{
+	return m_device;
+}
+
+const VkAllocationCallbacks* device_memory::get_allocator() const noexcept{
+	return m_allocator_ptr;
 }
 //-------------------------------------------------------------------
 

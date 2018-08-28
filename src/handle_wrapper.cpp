@@ -22,9 +22,11 @@ vk_utils::surface_wrapper::~handle_wrapper(){
 	}
 }
 
+/*
 template<>
 vk_utils::image_handler_wrapper::~handle_wrapper(){
 	if(m_handle != VK_NULL_HANDLE){
 		vkDestroyImage(m_addition_handler, m_handle, m_allocator_ptr);
 	}
 }
+*/

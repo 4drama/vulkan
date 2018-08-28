@@ -19,9 +19,11 @@ public:
 
 	VkDeviceMemory allocate_memory(VkMemoryRequirements req,
 		VkMemoryPropertyFlags flags);
-	void free_memory(VkDeviceMemory memory);
+	void free_memory(VkDeviceMemory memory) noexcept;
 
 	uint32_t get_queue_families_size() const noexcept;
+	VkDevice get_device() const noexcept;
+	const VkAllocationCallbacks* get_allocator() const noexcept;
 
 	device_memory(device_memory& ) = delete;
 	device_memory& operator=(const device_memory& ) = delete;
