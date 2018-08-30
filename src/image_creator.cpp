@@ -72,7 +72,9 @@ image_creator& image_creator::set_concurrent(
 	return *this;
 }
 
-image_creator& image_creator::add_property_flag_bits(VkMemoryPropertyFlagBits bits){
+image_creator& image_creator::add_property_flag_bits(
+	VkMemoryPropertyFlagBits bits) noexcept{
+
 	m_flags |= bits;
 	return *this;
 }

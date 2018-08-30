@@ -39,7 +39,7 @@ public:
 
 	image_creator& set_concurrent(std::initializer_list<uint32_t> indices);
 
-	image_creator& add_property_flag_bits(VkMemoryPropertyFlagBits bits);
+	image_creator& add_property_flag_bits(VkMemoryPropertyFlagBits bits) noexcept;
 
 	[[nodiscard]] image create(device_memory &curr_device_memory) const;
 
