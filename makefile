@@ -142,6 +142,14 @@ $(OBJ_DIR)device_memory.o: \
 	gcc $(VK_INCLUDE) $(CFLAGS) \
 	$(SRC_DIR)device_memory.cpp -o $(OBJ_DIR)device_memory.o
 
+$(OBJ_DIR)command_pool.o: \
+	$(SRC_DIR)vulkan_exception.hpp \
+	$(SRC_DIR)device.hpp \
+	$(SRC_DIR)command_pool.hpp $(SRC_DIR)command_pool.cpp
+
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)command_pool.cpp -o $(OBJ_DIR)command_pool.o
+
 $(BIN_DIR)renderer$(SHARED_FORM): \
 	$(OBJ_DIR)renderer.o \
 	$(OBJ_DIR)instance_creator.o \
@@ -152,7 +160,8 @@ $(BIN_DIR)renderer$(SHARED_FORM): \
 	$(OBJ_DIR)vulkan_exception.o \
 	$(OBJ_DIR)image_creator.o \
 	$(OBJ_DIR)buffer_creator.o \
-	$(OBJ_DIR)device_memory.o
+	$(OBJ_DIR)device_memory.o \
+	$(OBJ_DIR)command_pool.o
 
 	gcc $(VK_LIB) -shared \
 	$(OBJ_DIR)renderer.o \
@@ -165,6 +174,7 @@ $(BIN_DIR)renderer$(SHARED_FORM): \
 	$(OBJ_DIR)image_creator.o \
 	$(OBJ_DIR)buffer_creator.o \
 	$(OBJ_DIR)device_memory.o \
+	$(OBJ_DIR)command_pool.o \
 	-o  $(BIN_DIR)$(LIB_PRE)renderer$(SHARED_FORM) $(LDFLAG)
 
 run:

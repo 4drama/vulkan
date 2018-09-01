@@ -5,6 +5,7 @@
 
 #include <vector>
 #include <string>
+#include <sstream>
 
 #include <cassert>
 
@@ -27,13 +28,41 @@ queue_family::queue_family(VkPhysicalDevice physical_device, uint32_t family_ind
 	m_family_properties = properties[m_family_index];
 }
 
-[[nodiscard]] bool queue_family::flags_check(VkQueueFlags flags){
-	// TO DO
+[[nodiscard]] bool queue_family::flags_check(VkQueueFlags flags) const noexcept{
+	return (m_family_properties.queueFlags & flags) == flags;
 }
 
-uint32_t queue_family::queue_create(){
-	VkQueue new_queue;
-	// TO DO
+VkQueue queue_family::acquire_queue(VkDevice device){
+	for(auto& queue : m_queues){
+		if(queue.first == queue_family::QUEUE_STATUS::FREE){
+			return queue.second;
+		}
+	}
+
+	if(m_family_properties.queueCount > m_queues.size()){
+		return this->queue_create(device);
+	} else {
+		std::stringstream s_msg;
+		s_msg << "maximum queue in " << m_family_index << "family.";
+		throw vk_utils::vulkan_error(s_msg.str());
+	}
+}
+
+void queue_family::release_queue(VkQueue queue){
+	for(auto& curr_queue : m_queues){
+		if(curr_queue.second == queue){
+			curr_queue.first = queue_family::QUEUE_STATUS::FREE;
+			break;
+		}
+	}
+}
+
+
+VkQueue queue_family::queue_create(VkDevice device){
+	VkQueue new_queue = VK_NULL_HANDLE;
+	vkGetDeviceQueue(device, m_family_index, m_queues.size(), &new_queue);
+	m_queues.push_back(std::pair(queue_family::QUEUE_STATUS::FREE, new_queue));
+	return new_queue;
 }
 //-------------------------------------------------------------------
 
