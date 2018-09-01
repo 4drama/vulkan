@@ -90,12 +90,18 @@ vulkan_error::vulkan_error(std::string msg, VkResult err) noexcept{
 		case VK_ERROR_INVALID_SHADER_NV :
 			m_msg += "VK_ERROR_INVALID_SHADER_NV ";
 		break;
+
+#if VK_HEADER_VERSION >= 72
 		case VK_ERROR_FRAGMENTATION_EXT :
 			m_msg += "VK_ERROR_FRAGMENTATION_EXT ";
 		break;
+#endif
+
+#if VK_HEADER_VERSION >= 63
 		case VK_ERROR_NOT_PERMITTED_EXT :
 			m_msg += "VK_ERROR_NOT_PERMITTED_EXT ";
 		break;
+#endif
 
 		default:
 			m_msg += "unknown error";
