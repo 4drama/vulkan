@@ -53,6 +53,7 @@ queue_family::queues::queues(
 }
 
 queue_family::queues::~queues(){
+	vkDeviceWaitIdle(m_device);
 	for(auto& queue : m_queues){
 		vkDestroyFence(m_device, queue.fence, m_allocator_ptr);
 	}
