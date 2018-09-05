@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <utility>
+#include <memory>
 
 #include "handle_wrapper.hpp"
 #include "platform.hpp"
@@ -19,25 +20,20 @@ class device_creator;
 
 class queue_family{
 public:
-	explicit queue_family(VkPhysicalDevice physical_device, uint32_t family_index);
+	explicit queue_family(
+		VkPhysicalDevice physical_device,
+		VkDevice device,
+		const VkAllocationCallbacks* allocator_ptr,
+		uint32_t family_index);
 
 	[[nodiscard]] bool flags_check(VkQueueFlags flags) const noexcept;
 
-	VkQueue acquire_queue(VkDevice device);
-	void release_queue(VkQueue queue);
-
 private:
-	VkQueue queue_create(VkDevice device);
-
 	uint32_t m_family_index;
 	VkQueueFamilyProperties m_family_properties;
 
-	enum class QUEUE_STATUS{
-		BUSY,
-		FREE
-	};
-
-	std::vector<std::pair<QUEUE_STATUS, VkQueue> > m_queues;
+	class queues;
+	std::shared_ptr<queues> m_queues_ptr;
 };
 
 class device{

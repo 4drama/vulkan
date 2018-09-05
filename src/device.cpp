@@ -13,9 +13,123 @@ using device = vk_utils::device;
 using queue_family = vk_utils::queue_family;
 using device_creator = vk_utils::device_creator;
 
+class queue_family::queues
+	: public std::enable_shared_from_this<queue_family::queues>{
+public:
+	queues() = delete;
+	queues(
+		VkDevice device,
+		const VkAllocationCallbacks* allocator_ptr,
+		uint32_t family_index,
+		uint32_t queue_count);
+	~queues();
+
+	void queue_submit(std::vector<VkSubmitInfo> submit_info);
+
+private:
+	uint32_t queue_create();
+
+	struct once_queue{
+		VkQueue queue;
+		VkFence fence;
+	};
+
+	std::vector<once_queue> m_queues;
+
+	VkDevice m_device;
+	const VkAllocationCallbacks* m_allocator_ptr;
+	uint32_t m_family_index;
+	uint32_t m_queue_count;
+};
+
+//=================queue_family::queues implementation================
+queue_family::queues::queues(
+	VkDevice device,
+	const VkAllocationCallbacks* allocator_ptr,
+	uint32_t family_index,
+	uint32_t queue_count)
+	: m_device(device), m_allocator_ptr(allocator_ptr),
+	m_family_index(family_index), m_queue_count(queue_count){
+}
+
+queue_family::queues::~queues(){
+	for(auto& queue : m_queues){
+		vkDestroyFence(m_device, queue.fence, m_allocator_ptr);
+	}
+}
+
+uint32_t queue_family::queues::queue_create(){
+
+	VkQueue new_queue = VK_NULL_HANDLE;
+	VkFence queue_fence = VK_NULL_HANDLE;
+
+	VkFenceCreateInfo info{
+		VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+		nullptr,
+		VK_FENCE_CREATE_SIGNALED_BIT
+	};
+
+	VkResult res = VK_SUCCESS;
+	vkGetDeviceQueue(m_device, m_family_index, m_queues.size(), &new_queue);
+	res = vkCreateFence(m_device, &info, m_allocator_ptr, &queue_fence);
+
+	if(res == VK_SUCCESS){
+		std::string msg = "vkCreateFence failed.";
+		throw vk_utils::vulkan_error(msg, res);
+	}
+
+	m_queues.push_back(once_queue{new_queue, queue_fence});
+	return  m_queues.size() - 1;
+}
+
+void queue_family::queues::queue_submit(std::vector<VkSubmitInfo> submit_info){
+	VkResult fence_status = VK_NOT_READY;
+	for(auto& queue : m_queues){
+		fence_status = vkGetFenceStatus(m_device, queue.fence);
+		if(fence_status == VK_SUCCESS){
+			VkResult res = VK_SUCCESS;
+			res = vkQueueSubmit(queue.queue, submit_info.size(),
+				submit_info.data(), queue.fence);
+
+			if(res != VK_SUCCESS){
+				std::string msg = "vkQueueSubmit failed.";
+				throw vk_utils::vulkan_error(msg, res);
+			}
+
+			return;
+		}
+	}
+
+	if(m_queue_count > m_queues.size()){
+		uint32_t index = queue_create();
+
+		VkResult res = VK_SUCCESS;
+		res = vkQueueSubmit(m_queues[index].queue, submit_info.size(),
+			submit_info.data(), m_queues[index].fence);
+
+		if(res != VK_SUCCESS){
+			std::string msg = "vkQueueSubmit failed.";
+			throw vk_utils::vulkan_error(msg, res);
+		}
+
+	} else {
+		std::stringstream s_msg;
+		s_msg << "maximum queue in " << m_family_index << "family.";
+		throw vk_utils::vulkan_error(s_msg.str());
+	}
+
+	return;
+}
+//-------------------------------------------------------------------
+
 //=====================queue_family implementation===================
-queue_family::queue_family(VkPhysicalDevice physical_device, uint32_t family_index)
-	:m_family_index(family_index){
+queue_family::queue_family(
+	VkPhysicalDevice physical_device,
+	VkDevice device,
+	const VkAllocationCallbacks* allocator_ptr,
+	uint32_t family_index)
+
+	: m_family_index(family_index){
 
 	uint32_t family_count = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &family_count, NULL);
@@ -23,46 +137,17 @@ queue_family::queue_family(VkPhysicalDevice physical_device, uint32_t family_ind
 	std::vector<VkQueueFamilyProperties> properties(family_count);
 	properties.resize(family_count);
 
-	vkGetPhysicalDeviceQueueFamilyProperties(physical_device, &family_count, properties.data());
+	vkGetPhysicalDeviceQueueFamilyProperties(
+		physical_device, &family_count, properties.data());
 
 	m_family_properties = properties[m_family_index];
+
+	m_queues_ptr = std::make_shared<queue_family::queues>(
+		device, allocator_ptr, family_index, m_family_properties.queueCount);
 }
 
 [[nodiscard]] bool queue_family::flags_check(VkQueueFlags flags) const noexcept{
 	return (m_family_properties.queueFlags & flags) == flags;
-}
-
-VkQueue queue_family::acquire_queue(VkDevice device){
-	for(auto& queue : m_queues){
-		if(queue.first == queue_family::QUEUE_STATUS::FREE){
-			return queue.second;
-		}
-	}
-
-	if(m_family_properties.queueCount > m_queues.size()){
-		return this->queue_create(device);
-	} else {
-		std::stringstream s_msg;
-		s_msg << "maximum queue in " << m_family_index << "family.";
-		throw vk_utils::vulkan_error(s_msg.str());
-	}
-}
-
-void queue_family::release_queue(VkQueue queue){
-	for(auto& curr_queue : m_queues){
-		if(curr_queue.second == queue){
-			curr_queue.first = queue_family::QUEUE_STATUS::FREE;
-			break;
-		}
-	}
-}
-
-
-VkQueue queue_family::queue_create(VkDevice device){
-	VkQueue new_queue = VK_NULL_HANDLE;
-	vkGetDeviceQueue(device, m_family_index, m_queues.size(), &new_queue);
-	m_queues.push_back(std::pair(queue_family::QUEUE_STATUS::FREE, new_queue));
-	return new_queue;
 }
 //-------------------------------------------------------------------
 
@@ -84,7 +169,8 @@ device::device(VkPhysicalDevice physical_device, VkDevice logical_device,
 
 	m_queue_families.clear();
 	for(uint32_t index = 0; index < family_count; index++){
-		m_queue_families.push_back(queue_family(m_physical_device, index));
+		m_queue_families.push_back(
+			queue_family(m_physical_device, logical_device, allocator_ptr, index));
 	}
 }
 
