@@ -7,11 +7,19 @@
 #include <string>
 #include <sstream>
 
+#include <thread>
+#include <mutex>
+
 #include <cassert>
 
 using device = vk_utils::device;
 using queue_family = vk_utils::queue_family;
 using device_creator = vk_utils::device_creator;
+
+struct once_queue{
+	VkQueue queue;
+	VkFence fence;
+};
 
 class queue_family::queues
 	: public std::enable_shared_from_this<queue_family::queues>{
@@ -24,17 +32,13 @@ public:
 		uint32_t queue_count);
 	~queues();
 
-	void queue_submit(std::vector<VkSubmitInfo> submit_info);
+	void queue_submit(std::vector<VkSubmitInfo> &submit_info);
 
 private:
 	uint32_t queue_create();
 
-	struct once_queue{
-		VkQueue queue;
-		VkFence fence;
-	};
-
 	std::vector<once_queue> m_queues;
+	std::mutex m_queues_mtx;
 
 	VkDevice m_device;
 	const VkAllocationCallbacks* m_allocator_ptr;
@@ -71,6 +75,9 @@ uint32_t queue_family::queues::queue_create(){
 	};
 
 	VkResult res = VK_SUCCESS;
+
+	std::lock_guard<std::mutex> lock(m_queues_mtx);
+
 	vkGetDeviceQueue(m_device, m_family_index, m_queues.size(), &new_queue);
 	res = vkCreateFence(m_device, &info, m_allocator_ptr, &queue_fence);
 
@@ -83,41 +90,88 @@ uint32_t queue_family::queues::queue_create(){
 	return  m_queues.size() - 1;
 }
 
-void queue_family::queues::queue_submit(std::vector<VkSubmitInfo> submit_info){
+namespace{
+
+const once_queue *get_ready_queue(const std::vector<once_queue> &m_queues, VkDevice device){
 	VkResult fence_status = VK_NOT_READY;
+
 	for(auto& queue : m_queues){
-		fence_status = vkGetFenceStatus(m_device, queue.fence);
+		fence_status = vkGetFenceStatus(device, queue.fence);
 		if(fence_status == VK_SUCCESS){
-			VkResult res = VK_SUCCESS;
-			res = vkQueueSubmit(queue.queue, submit_info.size(),
-				submit_info.data(), queue.fence);
-
-			if(res != VK_SUCCESS){
-				std::string msg = "vkQueueSubmit failed.";
-				throw vk_utils::vulkan_error(msg, res);
-			}
-
-			return;
+			return &queue;
 		}
 	}
+	return nullptr;
+}
 
-	if(m_queue_count > m_queues.size()){
-		uint32_t index = queue_create();
+};
 
+void queue_family::queues::queue_submit(std::vector<VkSubmitInfo> &submit_info){
+	VkDevice device = m_device;
+
+	auto submit_fun = [device]
+	(std::vector<VkSubmitInfo> &submit_info, const once_queue *queue_ptr){
 		VkResult res = VK_SUCCESS;
-		res = vkQueueSubmit(m_queues[index].queue, submit_info.size(),
-			submit_info.data(), m_queues[index].fence);
+		res = vkResetFences(device, 1, &queue_ptr->fence);
+		if(res != VK_SUCCESS){
+			std::string msg = "vkResetFences failed.";
+			throw vk_utils::vulkan_error(msg, res);
+		}
 
+		res = vkQueueSubmit(queue_ptr->queue, submit_info.size(),
+			submit_info.data(), queue_ptr->fence);
 		if(res != VK_SUCCESS){
 			std::string msg = "vkQueueSubmit failed.";
 			throw vk_utils::vulkan_error(msg, res);
 		}
+	};
+
+	std::lock_guard<std::mutex> lock(m_queues_mtx);
+	const once_queue *queue_ptr = get_ready_queue(m_queues, device);
+
+	if((queue_ptr == nullptr)
+		&& (m_queue_count > m_queues.size())){
+
+		uint32_t index = queue_create();
+		queue_ptr = &m_queues[index];
 
 	} else {
-		std::stringstream s_msg;
-		s_msg << "maximum queue in " << m_family_index << "family.";
-		throw vk_utils::vulkan_error(s_msg.str());
+		std::vector<once_queue> queues_cpy = m_queues;
+		std::mutex *mtx_ptr = &m_queues_mtx;
+
+		std::thread thr([queues_cpy, mtx_ptr, submit_fun, device]
+			(std::vector<VkSubmitInfo> submit_info){
+			try{
+				VkResult res = VK_SUCCESS;
+				std::vector<VkFence> fences{};
+				for(auto& curr : queues_cpy){
+					fences.push_back(curr.fence);
+				}
+				while(true){
+					res = vkWaitForFences(
+						device, fences.size(), fences.data(), VK_FALSE, UINT64_MAX);
+					if(res != VK_SUCCESS){
+							std::string msg = "vkWaitForFences failed.";
+							throw vk_utils::vulkan_error(msg, res);
+					}
+					mtx_ptr->lock();
+					const once_queue *queue_ptr = get_ready_queue(queues_cpy, device);
+					if(queue_ptr != nullptr){
+						submit_fun(submit_info, queue_ptr);
+						mtx_ptr->unlock();
+						return;
+					}
+					mtx_ptr->unlock();
+				}
+			} catch(...){
+				//TO DO
+			}
+		}, submit_info);
+     	thr.detach();
+		return;
 	}
+
+	submit_fun(submit_info, queue_ptr);
 
 	return;
 }
