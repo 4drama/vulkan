@@ -135,7 +135,8 @@ void queue_family::queues::queue_submit(std::vector<VkSubmitInfo> &submit_info){
 		uint32_t index = queue_create();
 		queue_ptr = &m_queues[index];
 
-	} else {
+	} else if(queue_ptr == nullptr){
+
 		std::vector<once_queue> queues_cpy = m_queues;
 		std::mutex *mtx_ptr = &m_queues_mtx;
 
