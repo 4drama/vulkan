@@ -6,6 +6,7 @@
 #include <vector>
 #include <string>
 #include <sstream>
+#include <iostream>
 
 #include <thread>
 #include <mutex>
@@ -36,9 +37,11 @@ public:
 
 private:
 	uint32_t queue_create();
+	void exception_check();
 
 	std::vector<once_queue> m_queues;
 	std::mutex m_queues_mtx;
+	std::shared_ptr<vk_utils::vulkan_error> m_exception_ptr = nullptr;
 
 	VkDevice m_device;
 	const VkAllocationCallbacks* m_allocator_ptr;
@@ -107,8 +110,9 @@ const once_queue *get_ready_queue(const std::vector<once_queue> &m_queues, VkDev
 };
 
 void queue_family::queues::queue_submit(std::vector<VkSubmitInfo> &submit_info){
-	VkDevice device = m_device;
+	this->exception_check();
 
+	VkDevice device = m_device;
 	auto submit_fun = [device]
 	(std::vector<VkSubmitInfo> &submit_info, const once_queue *queue_ptr){
 		VkResult res = VK_SUCCESS;
@@ -140,8 +144,12 @@ void queue_family::queues::queue_submit(std::vector<VkSubmitInfo> &submit_info){
 		std::vector<once_queue> queues_cpy = m_queues;
 		std::mutex *mtx_ptr = &m_queues_mtx;
 
-		std::thread thr([queues_cpy, mtx_ptr, submit_fun, device]
-			(std::vector<VkSubmitInfo> submit_info){
+		std::thread thr([queues_cpy, mtx_ptr, submit_fun,
+			device]
+			(std::vector<VkSubmitInfo> submit_info,
+			std::shared_ptr<vk_utils::vulkan_error> *exception_ptr_to_shared){
+			std::shared_ptr<vk_utils::vulkan_error> &exeption
+				= *exception_ptr_to_shared;
 			try{
 				VkResult res = VK_SUCCESS;
 				std::vector<VkFence> fences{};
@@ -164,17 +172,31 @@ void queue_family::queues::queue_submit(std::vector<VkSubmitInfo> &submit_info){
 					}
 					mtx_ptr->unlock();
 				}
+			} catch(vk_utils::vulkan_error& err){
+				if(exeption){
+					std::cerr << "exception already in exeption_ptr" << std::endl;
+					std::cerr << exeption->what() << std::endl;
+				}
+				*exeption = err;
 			} catch(...){
-				//TO DO
 			}
-		}, submit_info);
-     	thr.detach();
+		}, submit_info, &m_exception_ptr);
+    	thr.detach();
 		return;
 	}
 
 	submit_fun(submit_info, queue_ptr);
 
 	return;
+}
+
+void queue_family::queues::exception_check(){
+	if(!m_exception_ptr){
+		std::cerr << "Exception in other thread." << std::endl;
+		vk_utils::vulkan_error exception(*m_exception_ptr);
+		m_exception_ptr = nullptr;
+		throw exception;
+	}
 }
 //-------------------------------------------------------------------
 
