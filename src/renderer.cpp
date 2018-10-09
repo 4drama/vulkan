@@ -4,6 +4,8 @@
 
 #include <string>
 
+#include <chrono>
+
 vk::renderer::renderer(){
 	this->m_instance = vk_utils::instance_creator()
 		.add_extension(vk_utils::get_surface_extension_name())
@@ -29,6 +31,19 @@ vk::renderer::renderer(){
 	}
 
 	m_surface = vk_utils::create_surface(m_window, m_instance.get(), nullptr);
+
+	//=========REMOVE=========
+	using high_resolution_clock = std::chrono::high_resolution_clock;
+	high_resolution_clock::time_point time_point = high_resolution_clock::now();
+	high_resolution_clock::time_point end_time_point{};
+	end_time_point = time_point + std::chrono::seconds(2);
+
+	vk_utils::show_window(m_window);
+	while(time_point < end_time_point){
+
+		time_point = high_resolution_clock::now();
+	}
+	//------------------------
 }
 
 vk::renderer::~renderer(){

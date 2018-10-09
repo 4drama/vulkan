@@ -85,7 +85,7 @@ bool vk_utils::get_physical_device_presentation_support(
 		return false;
 }
 
-void show_window(const vk_utils::window_wrapper& window) noexcept{
+void vk_utils::show_window(const vk_utils::window_wrapper& window) noexcept{
 #if defined(_WIN32)
 	ShowWindow(window.get().window, SW_SHOW);
 	UpdateWindow(window.get().window);
