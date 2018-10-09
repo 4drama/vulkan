@@ -293,6 +293,14 @@ std::vector<uint32_t> device::get_presentation_support(
 }
 
 
+VkPhysicalDevice device::get_physical_device() const noexcept{
+	return m_physical_device;
+}
+
+VkDevice device::get_logical_device() const noexcept{
+	return m_logical_device.get();
+}
+
 device::~device(){
 
 }

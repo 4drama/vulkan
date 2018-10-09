@@ -49,6 +49,9 @@ public:
 	std::vector<uint32_t> get_presentation_support(
 		const window_wrapper& window) const;
 
+	[[nodiscard]] VkPhysicalDevice get_physical_device() const noexcept;
+	[[nodiscard]] VkDevice get_logical_device() const noexcept;
+
 	device(device& ) = delete;
 	device& operator=(const device& ) = delete;
 	device& operator=(device&& ) = default;

@@ -95,6 +95,24 @@ void vk_utils::show_window(const vk_utils::window_wrapper& window) noexcept{
 #endif
 }
 
+vk_utils::window_size vk_utils::get_window_size(const window_wrapper& window) noexcept{
+	vk_utils::window_size win_size{0, 0};
+
+#if defined(_WIN32)
+	RECT rect = {0};
+	GetWindowRect(window.get().window, &rect);
+
+	win_size.width = rect.right - rect.left;
+	win_size.height = rect.bottom - rect.top;
+
+#elif defined(__linux__)
+
+	//TO DO
+
+#endif
+	return win_size;
+}
+
 #if defined(_WIN32)
 	namespace{
 		LRESULT CALLBACK WndProc(HWND hWnd, UINT message,

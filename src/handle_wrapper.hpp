@@ -14,7 +14,7 @@ class handle_wrapper;
 using instance_wrapper = handle_wrapper<VkInstance, VkAllocationCallbacks>;
 using device_wrapper = handle_wrapper<VkDevice, VkAllocationCallbacks>;
 using surface_wrapper = handle_wrapper<VkSurfaceKHR, VkAllocationCallbacks, VkInstance>;
-
+using swapchain_wrapper = handle_wrapper<VkSwapchainKHR, VkAllocationCallbacks, VkDevice>;
 //using image_handler_wrapper = handle_wrapper<VkImage, VkAllocationCallbacks, VkDevice>;
 
 template<class addition_handler_type>
@@ -131,6 +131,9 @@ device_wrapper::~handle_wrapper();
 
 template<>
 surface_wrapper::~handle_wrapper();
+
+template<>
+swapchain_wrapper::~swapchain_wrapper();
 /*
 template<>
 image_handler_wrapper::~handle_wrapper();

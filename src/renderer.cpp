@@ -5,11 +5,13 @@
 #include <string>
 
 #include <chrono>
+#include "swapchain_creator.hpp"
 
 vk::renderer::renderer(){
 	this->m_instance = vk_utils::instance_creator()
 		.add_extension(vk_utils::get_surface_extension_name())
-//		.add_extension(VK_KHR_SURFACE_EXTENSION_NAME)
+		.add_extension(VK_KHR_SURFACE_EXTENSION_NAME)
+//		.add_extension(VK_KHR_DISPLAY_EXTENSION_NAME)
 //		.add_layer("VK_LAYER_LUNARG_api_dump")
 		.create();
 
@@ -37,6 +39,8 @@ vk::renderer::renderer(){
 	high_resolution_clock::time_point time_point = high_resolution_clock::now();
 	high_resolution_clock::time_point end_time_point{};
 	end_time_point = time_point + std::chrono::seconds(2);
+
+	vk_utils::swapchain_creator(m_device, m_surface, m_window).create();
 
 	vk_utils::show_window(m_window);
 	while(time_point < end_time_point){

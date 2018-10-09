@@ -150,6 +150,16 @@ $(OBJ_DIR)command_pool.o: \
 	gcc $(VK_INCLUDE) $(CFLAGS) \
 	$(SRC_DIR)command_pool.cpp -o $(OBJ_DIR)command_pool.o
 
+$(OBJ_DIR)swapchain_creator.o: \
+	$(SRC_DIR)vulkan_exception.hpp \
+	$(SRC_DIR)device.hpp \
+	$(SRC_DIR)handle_wrapper.hpp \
+	$(PLATFORM_DEPENDENCE_SRC) \
+	$(SRC_DIR)swapchain_creator.hpp $(SRC_DIR)swapchain_creator.cpp
+
+	gcc $(VK_INCLUDE) $(CFLAGS) \
+	$(SRC_DIR)swapchain_creator.cpp -o $(OBJ_DIR)swapchain_creator.o
+
 $(BIN_DIR)renderer$(SHARED_FORM): \
 	$(OBJ_DIR)renderer.o \
 	$(OBJ_DIR)instance_creator.o \
@@ -161,7 +171,8 @@ $(BIN_DIR)renderer$(SHARED_FORM): \
 	$(OBJ_DIR)image_creator.o \
 	$(OBJ_DIR)buffer_creator.o \
 	$(OBJ_DIR)device_memory.o \
-	$(OBJ_DIR)command_pool.o
+	$(OBJ_DIR)command_pool.o \
+	$(OBJ_DIR)swapchain_creator.o
 
 	gcc $(VK_LIB) -shared \
 	$(OBJ_DIR)renderer.o \
@@ -175,6 +186,7 @@ $(BIN_DIR)renderer$(SHARED_FORM): \
 	$(OBJ_DIR)buffer_creator.o \
 	$(OBJ_DIR)device_memory.o \
 	$(OBJ_DIR)command_pool.o \
+	$(OBJ_DIR)swapchain_creator.o \
 	-o  $(BIN_DIR)$(LIB_PRE)renderer$(SHARED_FORM) $(LDFLAG)
 
 run:

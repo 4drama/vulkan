@@ -27,6 +27,11 @@
 
 namespace vk_utils{
 
+	struct window_size{
+		uint32_t width;
+		uint32_t height;
+	};
+
 	platform_window_creator get_platform_window();
 
 	const char* get_surface_extension_name();
@@ -42,7 +47,7 @@ namespace vk_utils{
 		uint32_t family_index) noexcept;
 
 	void show_window(const window_wrapper& window) noexcept;
-
+	[[nodiscard]] window_size get_window_size(const window_wrapper& window) noexcept;
 }
 
 #endif //PLATFORM_HPP_
