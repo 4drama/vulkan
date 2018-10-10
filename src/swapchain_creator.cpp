@@ -203,7 +203,7 @@ bool f_check_format_support(
 uint32_t f_get_format_indeces(
 	const std::vector<VkSurfaceFormatKHR>& sup_formats, VkFormat format){
 
-	uint32_t format_indeces = ~0;
+	uint32_t format_indeces = ~0u;
 	for(uint32_t i = 0; i < sup_formats.size(); ++i){
 		if(sup_formats[i].format == format){
 			format_indeces = i;
